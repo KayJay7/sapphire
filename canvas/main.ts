@@ -99,18 +99,18 @@ class Texture extends Base{
     public width:number;
     public height:number;
     public img;
-    public imgW:number;
-    public imgH:number;
+    public imgw:number;
+    public imgh:number;
 
 
-    public constructor(img:string,mgw:number,imgh:number,x:number,y:number,width:number,height:number){
+    public constructor(img:string,imgw:number,imgh:number,x:number,y:number,width:number,height:number){
         super(x,y);
         this.width=width;
         this.height=height;
         this.img=new Image();
         this.img.src=img;
-        this.h=this.img;
-        this.w=this.img.sendResolutionHeight;
+        this.imgw=imgw;
+        this.imgh=imgh;
         console.log(this.w+","+this.h);
     }
 

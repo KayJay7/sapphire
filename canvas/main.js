@@ -81,14 +81,14 @@ var Rectangle = /** @class */ (function (_super) {
 }(Base));
 var Texture = /** @class */ (function (_super) {
     __extends(Texture, _super);
-    function Texture(img, mgw, imgh, x, y, width, height) {
+    function Texture(img, imgw, imgh, x, y, width, height) {
         var _this = _super.call(this, x, y) || this;
         _this.width = width;
         _this.height = height;
         _this.img = new Image();
         _this.img.src = img;
-        _this.h = _this.img;
-        _this.w = _this.img.sendResolutionHeight;
+        _this.imgw = imgw;
+        _this.imgh = imgh;
         console.log(_this.w + "," + _this.h);
         return _this;
     }

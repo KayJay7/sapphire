@@ -111,7 +111,7 @@ class Texture extends Base{
         this.img.src=img;
         this.imgw=imgw;
         this.imgh=imgh;
-        console.log(this.w+","+this.h);
+        console.log(this.imgw+","+this.imgh);
     }
 
     draw():void{
@@ -119,7 +119,6 @@ class Texture extends Base{
             mna.beginPath();
             mna.drawImage(this.img,calx(this.x),caly(this.y),this.width,this.height);
             mna.stroke();
-            console.log(this.w+","+this.h);
         }
     }
 }
@@ -136,19 +135,6 @@ function calc():void{
     cnv.cx=cnv.width/cnv.w/2;
     cnv.cy=cnv.height/cnv.h/2;
 
-    let iw:number=81,ih:number=50;
-    let w:number=cnv.width,h=cnv.height;
-    let x:number=0,y:number=0;
-
-    if(iw*h<ih*w){
-        iw=(h*iw)/ih;
-        x+=(w-iw)/2;
-        w=iw;
-    }else{
-        ih=(w*ih)/iw;
-        y+=(h-ih)/2;
-        h=ih;
-    }
 
     console.log("canvas: size "+cnv.w+","+cnv.h);
 }
@@ -160,6 +146,33 @@ function caly(y:number):number{
     // console.log("("+y+"+"+cnv.cy+")*"+cnv.h+"="+((y+cnv.cy)*cnv.h))
     return (y+cnv.cy)*cnv.h;
 }
+function calimg(iw,ih):[number,number,number,number]{
+    let w:number=cnv.width,h:number=cnv.height;
+    let x:number=0,y:number=0;
+
+    if(true){
+        if(iw*h<ih*w){
+            iw=(h*iw)/ih;
+            x+=(w-iw)/2;
+            w=iw;
+        }else{
+            ih=(w*ih)/iw;
+            y+=(h-ih)/2;
+            h=ih;
+        }
+    }else{
+        if(iw*h<ih*w){
+            ih=(w*ih)/iw;
+            y+=(h-ih)/2;
+            h=ih;
+        }else{
+            iw=(h*iw)/ih;
+            x+=(w-iw)/2;
+            w=iw;
+        }
+    }
+    return [x,y,w,h];
+}
 
 //START
 let cnv:Tcnv={} as Tcnv;
@@ -170,7 +183,7 @@ let r1:Rectangle;
 let img1;
 c1=new Circle(1,0,20);
 r1=new Rectangle(0,0,50,70);
-img1=new Texture("https://upload.wikimedia.org/wikipedia/commons/6/61/Caspar_David_Friedrich_-_Der_Wanderer_%C3%BCber_dem_Nebelmeer.jpg",-500,-500,0,0);
+img1=new Texture("https://upload.wikimedia.org/wikipedia/commons/6/61/Caspar_David_Friedrich_-_Der_Wanderer_%C3%BCber_dem_Nebelmeer.jpg",1100,1399,-500,-500,200,200);
 c1.filled=true;
 r1.filled=true;
 r1.setStroke("#032397",5);
@@ -186,6 +199,8 @@ window.onresize=function(){
 
 //REFRESH
 function refresh(){
+    // let iw:number=81,ih:number=50;
+
     requestAnimationFrame(refresh);
     mna.fillStyle="#d6cdd3";
     mna.fillRect(0,0,cnv.width,cnv.height);

@@ -85,7 +85,6 @@ var Base = /** @class */ (function () {
             }
         }
     };
-    // abstract precalc():void;
     Base.prototype.precalc = function () {
         this.low = [calx(this.x - this.w / 2), caly(this.y - this.h / 2), calw(this.w), calh(this.h)];
     };
@@ -220,7 +219,7 @@ function calc() {
         iw = (h * iw) / ih;
         cnv.ox = (w - iw) / 2;
         cnv.oy = 0;
-        cnv.uw = w / 1620;
+        cnv.uw = iw / 1620;
         cnv.uh = h / 1000;
     }
     else {
@@ -258,6 +257,7 @@ list = [new Texture("resources/background.png", 0, 0, 1920, 1080),
 ];
 list[2].filled = true;
 list[2].setFill("#ffffff");
+list[2].visible = false;
 calc();
 refresh();
 //EVENTS
@@ -265,7 +265,7 @@ window.onresize = calc;
 document.onmousedown = function (event) {
     //console.log(Date.now());
     //console.log(event.pageX+" "+event.pageY);
-    list[4].startDrop(event.pageX, event.pageY);
+    list[1].startDrop(event.pageX, event.pageY);
 };
 //REFRESH
 function refresh() {

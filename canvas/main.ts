@@ -102,7 +102,6 @@ abstract class Base{
         }
     }
 
-    // abstract precalc():void;
     public precalc():void{
         this.low=[calx(this.x-this.w/2),caly(this.y-this.h/2),calw(this.w),calh(this.h)];
     }
@@ -243,7 +242,7 @@ function calc():void{
         iw=(h*iw)/ih;
         cnv.ox=(w-iw)/2;
         cnv.oy=0;
-        cnv.uw=w/1620;
+        cnv.uw=iw/1620;
         cnv.uh=h/1000;
     }else{
         ih=(w*ih)/iw;
@@ -285,6 +284,7 @@ list=[new Texture("resources/background.png",0,0,1920,1080),
 
 list[2].filled=true;
 list[2].setFill("#ffffff");
+list[2].visible=false;
 
 calc();
 refresh();
@@ -294,7 +294,7 @@ window.onresize=calc;
 document.onmousedown=function(event){
     //console.log(Date.now());
     //console.log(event.pageX+" "+event.pageY);
-    (list[4] as Drop).startDrop(event.pageX,event.pageY);
+    (list[1] as Drop).startDrop(event.pageX,event.pageY);
 };
 
 //REFRESH

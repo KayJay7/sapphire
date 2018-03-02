@@ -4,16 +4,18 @@ const mna=(<HTMLCanvasElement>document.getElementById("mna")).getContext("2d");
 type Tcnv={
     width:number;
     height:number;
+    w:number;
+    h:number;
     uw:number;
     uh:number;
     ox:number
     oy:number
 }
 abstract class Base{
-    public x:number;
-    public y:number;
-    public w:number;
-    public h:number;
+    protected x:number;
+    protected y:number;
+    protected w:number;
+    protected h:number;
     public visible:boolean;
     public filled:boolean;
     protected stroke:[string,number];
@@ -108,6 +110,47 @@ abstract class Base{
 
     public abstract draw():void;
 }
+class Rectangle extends Base{
+    public constructor(x:number,y:number,w:number,h:number){
+        super(x,y,w,h);
+    }
+
+    draw():void{
+        if(this.visible){
+            mna.beginPath();
+            mna.strokeStyle=this.stroke[0];
+            mna.lineWidth=this.stroke[1];
+            mna.rect(this.low[0],this.low[1],this.low[2],this.low[3]);
+            if(this.filled){
+                mna.fillStyle=this.fill[0];
+                mna.fill();
+            }
+            mna.stroke();
+        }
+    }
+}
+class Texture extends Base{
+    public img;
+
+    public constructor(img:string,x:number,y:number,w:number,h:number){
+        if(w&&h){
+            super(x,y,w,h);
+        }
+        else{
+            super(x,y,0,0);
+        }
+        this.img=new Image();
+        this.img.src=img;
+    }
+
+    draw():void{
+        if(this.visible){
+            mna.beginPath();
+            mna.drawImage(this.img,this.low[0],this.low[1],this.low[2],this.low[3]);
+            mna.stroke();
+        }
+    }
+}
 class Circle extends Base{
     public constructor(x:number,y:number,radiusX:number,radiusY:number){
         super(x,y,radiusX*2,radiusY*2);
@@ -138,7 +181,6 @@ class Circle extends Base{
             mna.strokeStyle=this.stroke[0];
             mna.lineWidth=this.stroke[1];
             mna.ellipse(this.low[0],this.low[1],this.low[2]/2,this.low[3]/2,0,0,2*Math.PI)
-            // mna.arc(this.low[0],this.low[1],this.low[2]/2,0,2*Math.PI);
             if(this.filled){
                 mna.fillStyle=this.fill[0];
                 mna.fill();
@@ -147,83 +189,59 @@ class Circle extends Base{
         }
     }
 }
-class Rectangle extends Base{
-    public constructor(x:number,y:number,w:number,h:number){
-        super(x,y,w,h);
+class Drop extends Circle {
+    private time: number;
+
+    constructor(radiusX: number, radiusY: number) {
+        super(0, 0, radiusX, radiusY);
+        this.time = 0;
     }
 
-    draw():void{
-        if(this.visible){
-            mna.beginPath();
-            mna.strokeStyle=this.stroke[0];
-            mna.lineWidth=this.stroke[1];
-            mna.rect(this.low[0],this.low[1],this.low[2],this.low[3]);
-            if(this.filled){
-                mna.fillStyle=this.fill[0];
-                mna.fill();
-            }
-            mna.stroke();
-        }
-    }
-}
-class Texture extends Base{
-    public img;
-
-    public constructor(img:string/*imgw:number,imgh:number,*/,x:number,y:number,w:number,h:number){
-        if(w&&h){
-            super(x,y,w,h);
-        }
-        else{
-            super(x,y,0,0);
-        }
-        this.img=new Image();
-        this.img.src=img;
+    public startDrop(x: number, y: number): void {
+        this.time = Date.now();
+        this.x = x;
+        this.y = y;
     }
 
-    draw():void{
-        if(this.visible){
-            mna.beginPath();
-            mna.drawImage(this.img,this.low[0],this.low[1],this.low[2],this.low[3]);
-            mna.stroke();
-        }
-    }
-}
-class Drop extends Circle{
-    public time:number;
-
-    constructor(radiusX:number,radiusY:number){
-        super(0,0,radiusX,radiusY);
-        this.time=0;
-    }
-
-    public startDrop(x:number,y:number):void{
-        this.time=Date.now();
-        this.x=0;
-        this.y=0;
-        this.low[0]=x;
-        this.low[1]=y;
-    }
-
-    precalc():void{
-        this.low=[this.x,this.y,calw(this.w),calh(this.h)];
-    }
-
-    draw():void{
-        let dt=(Date.now()-this.time);
-        if(dt<100){
-            //console.log(dt);
-            if(this.visible){
+    draw(): void {
+        let dt = (Date.now() - this.time);
+        if (dt < 100) {
+            if (this.visible) {
                 mna.beginPath();
-                mna.strokeStyle=this.stroke[0];
-                mna.lineWidth=this.stroke[1];
-                mna.ellipse(this.low[0],this.low[1],this.low[2]/2*dt/100,this.low[3]/2*dt/100,0,0,2*Math.PI)
-                if(this.filled){
-                    mna.fillStyle=this.fill[0];
-                    mna.fill();
-                }
+                mna.strokeStyle = this.stroke[0];
+                mna.lineWidth = this.stroke[1];
+                mna.ellipse(this.x, this.y, this.w * dt / (100 + dt), this.h * dt / (100 + dt), 0, 0, 2 * Math.PI)
+                console.log(this.w * dt / (100 + dt) + "x" + this.h * dt / (100 + dt));
+                // if(this.filled){
+                //     mna.fillStyle=this.fill[0];
+                //     mna.fill();
+                // }
                 mna.stroke();
             }
         }
+    }
+}
+
+class Power{
+    protected x:number;
+    protected y:number;
+    protected w:number;
+    protected h:number;
+    public visible:boolean;
+    public filled:boolean;
+    protected stroke:[string,number];
+    protected fill:[string];
+    protected low:number[];
+
+    constructor(){
+    }
+
+
+    public precalc():void{
+        this.low=[calx(this.x-this.w/2),caly(this.y-this.h/2),calw(this.w),calh(this.h)];
+    }
+
+     public draw():void{
     }
 }
 
@@ -237,7 +255,6 @@ function calc():void{
 
     let iw:number=81,ih:number=50;
     let w:number=cnv.width,h:number=cnv.height;
-
     if(iw*h<ih*w){
         iw=(h*iw)/ih;
         cnv.ox=(w-iw)/2;
@@ -252,12 +269,14 @@ function calc():void{
         cnv.uh=ih/1000;
     }
 
-    list[0].cals(cnv.width/cnv.uw,cnv.height/cnv.uh,false);
+    cnv.w=cnv.width/cnv.uw;
+    cnv.h=cnv.height/cnv.uh;
 
-    for(let o of list){
-        o.precalc();
+    list[0].cals(cnv.w,cnv.h,false);
+
+    for(let i:number=0,max:number=list.length-1;i<max;i++){
+        list[i].precalc();
     }
-
     console.log("calc: offsetx="+cnv.ox+", offsety="+cnv.oy+", unitw="+cnv.uw+", unith="+cnv.uh);
 }
 function calx(x:number):number{
@@ -275,16 +294,25 @@ function calh(h:number):number{
 
 //START
 let cnv:Tcnv={} as Tcnv;
-let list:Base[];
+let list:any[];
 
 list=[new Texture("resources/background.png",0,0,1920,1080),
-    new Drop(50,50),
-    new Rectangle(0,0,1620,1000)
+    new Rectangle(0,0,1620,1000),
+    new Circle(0,-155,50,5),
+    new Rectangle(0,-192,47,70),
+    new Drop(20,20)
 ];
 
+list[1].filled=true;
+list[1].setFill("rgba(167,167,167,0.6)");
+list[1].visible=false;
+
 list[2].filled=true;
-list[2].setFill("#ffffff");
-list[2].visible=false;
+list[2].setFill("rgba(255,20,20,0.6)");
+list[3].filled=true;
+list[3].setFill("rgba(255,20,20,0.6)");
+
+list[4].setStroke("#efefef",2);
 
 calc();
 refresh();
@@ -292,19 +320,27 @@ refresh();
 //EVENTS
 window.onresize=calc;
 document.onmousedown=function(event){
-    //console.log(Date.now());
-    //console.log(event.pageX+" "+event.pageY);
-    (list[1] as Drop).startDrop(event.pageX,event.pageY);
+    list[4].startDrop(event.pageX,event.pageY);
 };
 
 //REFRESH
 function refresh(){
     requestAnimationFrame(refresh);
-    mna.fillStyle="#0b00ff";
+    // Create gradient
+    let grd:CanvasGradient = mna.createRadialGradient(150.000, 150.000, 0.000, 150.000, 150.000, 150.000);
+
+    // Add colors
+    grd.addColorStop(0.002, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(0.350, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(0.500, 'rgba(58, 43, 213, 1.000)');
+    grd.addColorStop(0.650, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(1.000, 'rgba(27, 20, 100, 1.000)');
+
+    // Fill with gradient
+    mna.fillStyle = grd;
     mna.fillRect(0,0,cnv.width,cnv.height);
 
-
-    for(let o of list){
-        o.draw();
+    for(let i:number=0,max:number=list.length;i<max;i++){
+        list[i].draw();
     }
 }

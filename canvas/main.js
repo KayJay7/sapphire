@@ -90,6 +90,49 @@ var Base = /** @class */ (function () {
     };
     return Base;
 }());
+var Rectangle = /** @class */ (function (_super) {
+    __extends(Rectangle, _super);
+    function Rectangle(x, y, w, h) {
+        return _super.call(this, x, y, w, h) || this;
+    }
+    Rectangle.prototype.draw = function () {
+        if (this.visible) {
+            mna.beginPath();
+            mna.strokeStyle = this.stroke[0];
+            mna.lineWidth = this.stroke[1];
+            mna.rect(this.low[0], this.low[1], this.low[2], this.low[3]);
+            if (this.filled) {
+                mna.fillStyle = this.fill[0];
+                mna.fill();
+            }
+            mna.stroke();
+        }
+    };
+    return Rectangle;
+}(Base));
+var Texture = /** @class */ (function (_super) {
+    __extends(Texture, _super);
+    function Texture(img, x, y, w, h) {
+        var _this = this;
+        if (w && h) {
+            _this = _super.call(this, x, y, w, h) || this;
+        }
+        else {
+            _this = _super.call(this, x, y, 0, 0) || this;
+        }
+        _this.img = new Image();
+        _this.img.src = img;
+        return _this;
+    }
+    Texture.prototype.draw = function () {
+        if (this.visible) {
+            mna.beginPath();
+            mna.drawImage(this.img, this.low[0], this.low[1], this.low[2], this.low[3]);
+            mna.stroke();
+        }
+    };
+    return Texture;
+}(Base));
 var Circle = /** @class */ (function (_super) {
     __extends(Circle, _super);
     function Circle(x, y, radiusX, radiusY) {
@@ -118,7 +161,6 @@ var Circle = /** @class */ (function (_super) {
             mna.strokeStyle = this.stroke[0];
             mna.lineWidth = this.stroke[1];
             mna.ellipse(this.low[0], this.low[1], this.low[2] / 2, this.low[3] / 2, 0, 0, 2 * Math.PI);
-            // mna.arc(this.low[0],this.low[1],this.low[2]/2,0,2*Math.PI);
             if (this.filled) {
                 mna.fillStyle = this.fill[0];
                 mna.fill();
@@ -127,49 +169,6 @@ var Circle = /** @class */ (function (_super) {
         }
     };
     return Circle;
-}(Base));
-var Rectangle = /** @class */ (function (_super) {
-    __extends(Rectangle, _super);
-    function Rectangle(x, y, w, h) {
-        return _super.call(this, x, y, w, h) || this;
-    }
-    Rectangle.prototype.draw = function () {
-        if (this.visible) {
-            mna.beginPath();
-            mna.strokeStyle = this.stroke[0];
-            mna.lineWidth = this.stroke[1];
-            mna.rect(this.low[0], this.low[1], this.low[2], this.low[3]);
-            if (this.filled) {
-                mna.fillStyle = this.fill[0];
-                mna.fill();
-            }
-            mna.stroke();
-        }
-    };
-    return Rectangle;
-}(Base));
-var Texture = /** @class */ (function (_super) {
-    __extends(Texture, _super);
-    function Texture(img /*imgw:number,imgh:number,*/, x, y, w, h) {
-        var _this = this;
-        if (w && h) {
-            _this = _super.call(this, x, y, w, h) || this;
-        }
-        else {
-            _this = _super.call(this, x, y, 0, 0) || this;
-        }
-        _this.img = new Image();
-        _this.img.src = img;
-        return _this;
-    }
-    Texture.prototype.draw = function () {
-        if (this.visible) {
-            mna.beginPath();
-            mna.drawImage(this.img, this.low[0], this.low[1], this.low[2], this.low[3]);
-            mna.stroke();
-        }
-    };
-    return Texture;
 }(Base));
 var Drop = /** @class */ (function (_super) {
     __extends(Drop, _super);
@@ -180,33 +179,38 @@ var Drop = /** @class */ (function (_super) {
     }
     Drop.prototype.startDrop = function (x, y) {
         this.time = Date.now();
-        this.x = 0;
-        this.y = 0;
-        this.low[0] = x;
-        this.low[1] = y;
-    };
-    Drop.prototype.precalc = function () {
-        this.low = [this.x, this.y, calw(this.w), calh(this.h)];
+        this.x = x;
+        this.y = y;
     };
     Drop.prototype.draw = function () {
         var dt = (Date.now() - this.time);
         if (dt < 100) {
-            //console.log(dt);
             if (this.visible) {
                 mna.beginPath();
                 mna.strokeStyle = this.stroke[0];
                 mna.lineWidth = this.stroke[1];
-                mna.ellipse(this.low[0], this.low[1], this.low[2] / 2 * dt / 100, this.low[3] / 2 * dt / 100, 0, 0, 2 * Math.PI);
-                if (this.filled) {
-                    mna.fillStyle = this.fill[0];
-                    mna.fill();
-                }
+                mna.ellipse(this.x, this.y, this.w * dt / (100 + dt), this.h * dt / (100 + dt), 0, 0, 2 * Math.PI);
+                console.log(this.w * dt / (100 + dt) + "x" + this.h * dt / (100 + dt));
+                // if(this.filled){
+                //     mna.fillStyle=this.fill[0];
+                //     mna.fill();
+                // }
                 mna.stroke();
             }
         }
     };
     return Drop;
 }(Circle));
+var Power = /** @class */ (function () {
+    function Power() {
+    }
+    Power.prototype.precalc = function () {
+        this.low = [calx(this.x - this.w / 2), caly(this.y - this.h / 2), calw(this.w), calh(this.h)];
+    };
+    Power.prototype.draw = function () {
+    };
+    return Power;
+}());
 //CALCULATE
 function calc() {
     mna.canvas.width = mna.canvas.clientWidth;
@@ -229,10 +233,11 @@ function calc() {
         cnv.uw = w / 1620;
         cnv.uh = ih / 1000;
     }
-    list[0].cals(cnv.width / cnv.uw, cnv.height / cnv.uh, false);
-    for (var _i = 0, list_1 = list; _i < list_1.length; _i++) {
-        var o = list_1[_i];
-        o.precalc();
+    cnv.w = cnv.width / cnv.uw;
+    cnv.h = cnv.height / cnv.uh;
+    list[0].cals(cnv.w, cnv.h, false);
+    for (var i = 0, max = list.length - 1; i < max; i++) {
+        list[i].precalc();
     }
     console.log("calc: offsetx=" + cnv.ox + ", offsety=" + cnv.oy + ", unitw=" + cnv.uw + ", unith=" + cnv.uh);
 }
@@ -252,28 +257,41 @@ function calh(h) {
 var cnv = {};
 var list;
 list = [new Texture("resources/background.png", 0, 0, 1920, 1080),
-    new Drop(50, 50),
-    new Rectangle(0, 0, 1620, 1000)
+    new Rectangle(0, 0, 1620, 1000),
+    new Circle(0, -155, 50, 5),
+    new Rectangle(0, -192, 47, 70),
+    new Drop(20, 20)
 ];
+list[1].filled = true;
+list[1].setFill("rgba(167,167,167,0.6)");
+list[1].visible = false;
 list[2].filled = true;
-list[2].setFill("#ffffff");
-list[2].visible = false;
+list[2].setFill("rgba(255,20,20,0.6)");
+list[3].filled = true;
+list[3].setFill("rgba(255,20,20,0.6)");
+list[4].setStroke("#efefef", 2);
 calc();
 refresh();
 //EVENTS
 window.onresize = calc;
 document.onmousedown = function (event) {
-    //console.log(Date.now());
-    //console.log(event.pageX+" "+event.pageY);
-    list[1].startDrop(event.pageX, event.pageY);
+    list[4].startDrop(event.pageX, event.pageY);
 };
 //REFRESH
 function refresh() {
     requestAnimationFrame(refresh);
-    mna.fillStyle = "#0b00ff";
+    // Create gradient
+    var grd = mna.createRadialGradient(150.000, 150.000, 0.000, 150.000, 150.000, 150.000);
+    // Add colors
+    grd.addColorStop(0.002, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(0.350, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(0.500, 'rgba(58, 43, 213, 1.000)');
+    grd.addColorStop(0.650, 'rgba(27, 20, 100, 1.000)');
+    grd.addColorStop(1.000, 'rgba(27, 20, 100, 1.000)');
+    // Fill with gradient
+    mna.fillStyle = grd;
     mna.fillRect(0, 0, cnv.width, cnv.height);
-    for (var _i = 0, list_2 = list; _i < list_2.length; _i++) {
-        var o = list_2[_i];
-        o.draw();
+    for (var i = 0, max = list.length; i < max; i++) {
+        list[i].draw();
     }
 }

@@ -101,11 +101,12 @@ var Rectangle = /** @class */ (function (_super) {
             mna.strokeStyle = this.stroke[0];
             mna.lineWidth = this.stroke[1];
             mna.rect(this.low[0], this.low[1], this.low[2], this.low[3]);
+            mna.stroke();
             if (this.filled) {
                 mna.fillStyle = this.fill[0];
                 mna.fill();
             }
-            mna.stroke();
+            mna.closePath();
         }
     };
     return Rectangle;
@@ -113,13 +114,7 @@ var Rectangle = /** @class */ (function (_super) {
 var Texture = /** @class */ (function (_super) {
     __extends(Texture, _super);
     function Texture(img, x, y, w, h) {
-        var _this = this;
-        if (w && h) {
-            _this = _super.call(this, x, y, w, h) || this;
-        }
-        else {
-            _this = _super.call(this, x, y, 0, 0) || this;
-        }
+        var _this = _super.call(this, x, y, w, h) || this;
         _this.img = new Image();
         _this.img.src = img;
         return _this;
@@ -128,7 +123,7 @@ var Texture = /** @class */ (function (_super) {
         if (this.visible) {
             mna.beginPath();
             mna.drawImage(this.img, this.low[0], this.low[1], this.low[2], this.low[3]);
-            mna.stroke();
+            mna.closePath();
         }
     };
     return Texture;
@@ -153,19 +148,20 @@ var Circle = /** @class */ (function (_super) {
         this.low[1] = caly(y);
     };
     Circle.prototype.precalc = function () {
-        this.low = [calx(this.x), caly(this.y), calw(this.w), calh(this.h)];
+        this.low = [calx(this.x), caly(this.y), calw(this.w) / 2, calh(this.h) / 2];
     };
     Circle.prototype.draw = function () {
         if (this.visible) {
             mna.beginPath();
             mna.strokeStyle = this.stroke[0];
             mna.lineWidth = this.stroke[1];
-            mna.ellipse(this.low[0], this.low[1], this.low[2] / 2, this.low[3] / 2, 0, 0, 2 * Math.PI);
+            mna.ellipse(this.low[0], this.low[1], this.low[2], this.low[3], 0, 0, 2 * Math.PI);
+            mna.stroke();
             if (this.filled) {
                 mna.fillStyle = this.fill[0];
                 mna.fill();
             }
-            mna.stroke();
+            mna.closePath();
         }
     };
     return Circle;
@@ -185,32 +181,41 @@ var Drop = /** @class */ (function (_super) {
     Drop.prototype.draw = function () {
         var dt = (Date.now() - this.time);
         if (dt < 100) {
-            if (this.visible) {
-                mna.beginPath();
-                mna.strokeStyle = this.stroke[0];
-                mna.lineWidth = this.stroke[1];
-                mna.ellipse(this.x, this.y, this.w * dt / (100 + dt), this.h * dt / (100 + dt), 0, 0, 2 * Math.PI);
-                console.log(this.w * dt / (100 + dt) + "x" + this.h * dt / (100 + dt));
-                // if(this.filled){
-                //     mna.fillStyle=this.fill[0];
-                //     mna.fill();
-                // }
-                mna.stroke();
-            }
+            mna.beginPath();
+            mna.strokeStyle = this.stroke[0];
+            mna.lineWidth = this.stroke[1];
+            mna.ellipse(this.x, this.y, this.w * dt / (100 + dt), this.h * dt / (100 + dt), 0, 0, 2 * Math.PI);
+            mna.stroke();
+            mna.closePath();
         }
     };
     return Drop;
 }(Circle));
-var Power = /** @class */ (function () {
-    function Power() {
+var Power = /** @class */ (function (_super) {
+    __extends(Power, _super);
+    function Power(x, y, w, h) {
+        return _super.call(this, x, y, w, h) || this;
     }
     Power.prototype.precalc = function () {
-        this.low = [calx(this.x - this.w / 2), caly(this.y - this.h / 2), calw(this.w), calh(this.h)];
+        this.low = [calx(this.x), caly(this.y), calw(this.w) / 2, calh(this.h) / 2];
+        this.grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2], this.low[0], this.low[1], this.low[2] - 100);
+        this.grd.addColorStop(0.200, "#1b1464");
+        this.grd.addColorStop(0.500, "#3a2bd5");
+        this.grd.addColorStop(0.800, "#1b1464");
     };
     Power.prototype.draw = function () {
+        Date.now() % 5000;
+        mna.beginPath();
+        mna.strokeStyle = this.stroke[0];
+        mna.lineWidth = this.stroke[1];
+        mna.arc(this.low[0], this.low[1], this.low[2], 0, 2 * Math.PI, false);
+        mna.arc(this.low[0], this.low[1], this.low[2] - 100, 0, 2 * Math.PI, true);
+        mna.fillStyle = this.grd;
+        mna.fill();
+        mna.closePath();
     };
     return Power;
-}());
+}(Base));
 //CALCULATE
 function calc() {
     mna.canvas.width = mna.canvas.clientWidth;
@@ -236,6 +241,7 @@ function calc() {
     cnv.w = cnv.width / cnv.uw;
     cnv.h = cnv.height / cnv.uh;
     list[0].cals(cnv.w, cnv.h, false);
+    list[1].cals(cnv.w, cnv.h, false);
     for (var i = 0, max = list.length - 1; i < max; i++) {
         list[i].precalc();
     }
@@ -256,40 +262,37 @@ function calh(h) {
 //START
 var cnv = {};
 var list;
-list = [new Texture("resources/background.png", 0, 0, 1920, 1080),
+list = [new Power(0, 0, 1, 1),
+    new Texture("resources/background.png", 0, 0, 16, 9),
     new Rectangle(0, 0, 1620, 1000),
     new Circle(0, -155, 50, 5),
     new Rectangle(0, -192, 47, 70),
     new Drop(20, 20)
 ];
-list[1].filled = true;
-list[1].setFill("rgba(167,167,167,0.6)");
-list[1].visible = false;
+// list[1].visible=false;
+// list[2].visible=false;
+// list[3].visible=false;
+// list[4].visible=false;
 list[2].filled = true;
-list[2].setFill("rgba(255,20,20,0.6)");
+list[2].setFill("rgba(167,167,167,0.6)");
 list[3].filled = true;
+list[3].setStroke("#5eef0c");
 list[3].setFill("rgba(255,20,20,0.6)");
-list[4].setStroke("#efefef", 2);
+list[4].filled = true;
+list[4].setStroke("#5eef0c");
+list[4].setFill("rgba(255,20,20,0.6)");
+list[5].setStroke("#efefef", 2);
 calc();
 refresh();
 //EVENTS
 window.onresize = calc;
 document.onmousedown = function (event) {
-    list[4].startDrop(event.pageX, event.pageY);
+    list[5].startDrop(event.pageX, event.pageY);
 };
 //REFRESH
 function refresh() {
     requestAnimationFrame(refresh);
-    // Create gradient
-    var grd = mna.createRadialGradient(150.000, 150.000, 0.000, 150.000, 150.000, 150.000);
-    // Add colors
-    grd.addColorStop(0.002, 'rgba(27, 20, 100, 1.000)');
-    grd.addColorStop(0.350, 'rgba(27, 20, 100, 1.000)');
-    grd.addColorStop(0.500, 'rgba(58, 43, 213, 1.000)');
-    grd.addColorStop(0.650, 'rgba(27, 20, 100, 1.000)');
-    grd.addColorStop(1.000, 'rgba(27, 20, 100, 1.000)');
-    // Fill with gradient
-    mna.fillStyle = grd;
+    mna.fillStyle = "#1b1464";
     mna.fillRect(0, 0, cnv.width, cnv.height);
     for (var i = 0, max = list.length; i < max; i++) {
         list[i].draw();

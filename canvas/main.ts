@@ -32,6 +32,7 @@ abstract class Base{
         this.fill=["#000000"];
         this.visible=true;
         this.filled=false;
+        this.low=new Array();
     }
 
     public setX(x:number):void{
@@ -118,6 +119,7 @@ class Rectangle extends Base{
 
     draw():void{
         if(this.visible){
+            mna.beginPath();
             mna.strokeStyle=this.stroke[0];
             mna.lineWidth=this.stroke[1];
             mna.rect(this.low[0],this.low[1],this.low[2],this.low[3]);
@@ -246,13 +248,12 @@ class Power extends Base{
 
     draw():void{
         let a:number=cnv.dt%3001,k:number=1-(2*a/(3000+a));
-        // console.log(k+" "+a);
-
         this.grd=mna.createRadialGradient(this.lowc[0],this.lowc[1],this.lowc[2]*k,this.lowc[0],this.lowc[1],(this.lowc[2]*k-200>0)?this.lowc[2]*k-200:0);
         this.grd.addColorStop(0.000,"#1b1464");
         this.grd.addColorStop(0.500,"#003ce3");
         this.grd.addColorStop(1.000,"#1b1464");
 
+        mna.beginPath();
         mna.fillStyle=this.grd;
         mna.fillRect(this.low[0],this.low[1],this.low[2],this.low[3]);
     }
@@ -266,19 +267,80 @@ class Roll{
 
     public precalc():void{
         for(let i:number=0; i<15; i++){
-            this.low[i]=Math.round(cnv.width*(i+1)/16);
+            this.low[i]=Math.round(cnv.width*(i+1)/16)+0.5;
         }
     }
 
     public draw():void{
+        mna.beginPath();
+        mna.strokeStyle="#ffffff";
+        mna.lineWidth=1;
         for(let i:number=0; i<15; i++){
-            mna.strokeStyle="#ffffff";
-            mna.lineWidth=1;
-            mna.beginPath();
             mna.moveTo(this.low[i],0);
             mna.lineTo(this.low[i],cnv.height);
             mna.stroke();
         }
+    }
+}
+class Note{
+    private score:[Word,number,number,number][];
+
+    constructor(){
+        this.score=new Array(8);
+        let dt=Date.now();
+        for(let i:number=0;i<8;i++){
+            this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
+            //random();
+            this.score[i][0].setX(((Math.random()*14 | 0)+1)*cnv.w/15);
+            this.score[i][1]=(((Math.random()*5) | 0)+1)*1000;
+            this.score[i][2]=(Math.random()*cnv.h) | 0;
+            console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
+        }
+
+    }
+
+    precalc():void{
+        for(let i:number=0;i<8;i++){
+            this.score[i][0].precalc();
+        }
+    }
+
+    draw():void{
+        // //VARIABILI CHE ANDRANNO RIVISTE POI
+        // const trt:number=7000;//transition time
+        //
+        // for(let i:number=0;i<8;i++){
+        //     let note:Word=this.score[i][0],idle:number=this.score[i][1],stall:number=this.score[i][2],ct:number=cnv.dt-this.score[i][3];
+        //
+        //     if(ct>stall){
+        //         if(ct<idle+trt){
+        //             note.setY((ct-idle)/trt*stall);//qua metteremo l'ease
+        //             console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" AAA");
+        //         }else {
+        //             if(ct>(2*idle)+trt){
+        //                 note.setY(((ct-(2*idle)+trt)/trt*(1000-stall))+stall);
+        //                 console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
+        //             }else{
+        //                 /*(Math.random() * 6 | 0) + 1
+        //                 ~~(Math.random() * 6) + 1*/
+        //                 //Double Tilde ~~a and Bitwise OR (a | 0) are faster ways to write Math.floor(a) – edi9999
+        //                 //a | 0 is also the fastest and most optimized way to convert a string to an integer.
+        //                 // It only works with strings containing integers ("444" and "-444"), i.e. no floats/fractions.
+        //                 // It yields a 0 for everything that fails. It is one of the main optimizations behind asm.js
+        //                 note.setX(((Math.random()*14 | 0)+1)*cnv.w/16);
+        //                 stall=(Math.random()*cnv.h) | 0;
+        //                 idle=(((Math.random()*5) | 0)+1)*1000;
+        //                 this.score[i][3]=cnv.dt;
+        //                 console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" CCC");
+        //             }
+        //         }
+        //         note.draw();
+        //     }else{
+        //         console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
+        //     }
+        //     this.score[i][1]=idle;
+        //     this.score[i][2]=stall;
+        // }
     }
 }
 
@@ -315,7 +377,7 @@ function calc():void{
     for(let i:number=0,max:number=list.length-1; i<max; i++){
         list[i].precalc();
     }
-    console.log("calc: offsetx="+cnv.ox+", offsety="+cnv.oy+", unitw="+cnv.uw+", unith="+cnv.uh);
+    // console.log("calc: offsetx="+cnv.ox+", offsety="+cnv.oy+", unitw="+cnv.uw+", unith="+cnv.uh);
 }
 function calx(x:number):number{
     return (x+810)*cnv.uw+cnv.ox;
@@ -337,6 +399,7 @@ let list:any[];
 list=[new Power(0,0,1,1),
     new Texture("resources/background.png",0,0,16,9),
     new Roll(),
+    new Note(),
     new Rectangle(0,0,1620,1000),
     new Circle(0,-155,50,5),
     new Rectangle(0,-192,47,70),
@@ -348,17 +411,17 @@ list=[new Power(0,0,1,1),
 // list[3].visible=false;
 // list[4].visible=false;
 
-list[3].setStroke(0);
-list[3].filled=true;
-list[3].setFill("rgba(0,30,40,0.6)");
-
+list[4].setStroke("rgba(0,0,0,0)",0);
 list[4].filled=true;
-list[4].setStroke("#ffffff");
-list[4].setFill("rgba(255,20,20,0.6)");
+list[4].setFill("rgba(0,30,40,0.1)");
 
 list[5].filled=true;
 list[5].setStroke("#ffffff");
 list[5].setFill("rgba(255,20,20,0.6)");
+
+list[6].filled=true;
+list[6].setStroke("#ffffff");
+list[6].setFill("rgba(255,20,20,0.6)");
 
 
 // list[5].setStroke("#efefef",2);

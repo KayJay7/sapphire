@@ -97,7 +97,6 @@ var Rectangle = /** @class */ (function (_super) {
     }
     Rectangle.prototype.draw = function () {
         if (this.visible) {
-            mna.beginPath();
             mna.strokeStyle = this.stroke[0];
             mna.lineWidth = this.stroke[1];
             mna.rect(this.low[0], this.low[1], this.low[2], this.low[3]);
@@ -106,7 +105,6 @@ var Rectangle = /** @class */ (function (_super) {
                 mna.fillStyle = this.fill[0];
                 mna.fill();
             }
-            mna.closePath();
         }
     };
     return Rectangle;
@@ -121,12 +119,29 @@ var Texture = /** @class */ (function (_super) {
     }
     Texture.prototype.draw = function () {
         if (this.visible) {
-            mna.beginPath();
             mna.drawImage(this.img, this.low[0], this.low[1], this.low[2], this.low[3]);
-            mna.closePath();
         }
     };
     return Texture;
+}(Base));
+var Word = /** @class */ (function (_super) {
+    __extends(Word, _super);
+    function Word(x, y, text, font, size) {
+        var _this = _super.call(this, x, y, 0, size) || this;
+        _this.text = text;
+        _this.font = font;
+        return _this;
+    }
+    Word.prototype.precalc = function () {
+        this.low = [calx(this.x), caly(this.y), calh(this.h)];
+    };
+    Word.prototype.draw = function () {
+        // console.log(this.low[2]);
+        mna.font = this.low[2] + "px " + this.font;
+        mna.textAlign = "center";
+        mna.fillText(this.text, this.low[0], this.low[1]);
+    };
+    return Word;
 }(Base));
 var Circle = /** @class */ (function (_super) {
     __extends(Circle, _super);
@@ -161,61 +176,78 @@ var Circle = /** @class */ (function (_super) {
                 mna.fillStyle = this.fill[0];
                 mna.fill();
             }
-            mna.closePath();
         }
     };
     return Circle;
 }(Base));
 var Drop = /** @class */ (function (_super) {
     __extends(Drop, _super);
-    function Drop(radiusX, radiusY) {
-        var _this = _super.call(this, 0, 0, radiusX, radiusY) || this;
-        _this.time = 0;
+    function Drop(radius) {
+        var _this = _super.call(this, 0, 0, radius * 2, radius * 2) || this;
+        _this.start = -1;
         return _this;
     }
     Drop.prototype.startDrop = function (x, y) {
-        this.time = Date.now();
+        this.start = cnv.dt; //Date.now();
         this.x = x;
         this.y = y;
     };
     Drop.prototype.draw = function () {
-        var dt = (Date.now() - this.time);
-        if (dt < 100) {
+        var a = (cnv.dt - this.start);
+        if (a < 151) {
             mna.beginPath();
-            mna.strokeStyle = this.stroke[0];
-            mna.lineWidth = this.stroke[1];
-            mna.ellipse(this.x, this.y, this.w * dt / (100 + dt), this.h * dt / (100 + dt), 0, 0, 2 * Math.PI);
+            mna.strokeStyle = "#efefef";
+            mna.lineWidth = 2;
+            mna.arc(this.x, this.y, this.w * a / (150 + a), 0, 2 * Math.PI);
             mna.stroke();
-            mna.closePath();
         }
     };
     return Drop;
-}(Circle));
+}(Base));
 var Power = /** @class */ (function (_super) {
     __extends(Power, _super);
     function Power(x, y, w, h) {
-        return _super.call(this, x, y, w, h) || this;
+        var _this = _super.call(this, x, y, w, h) || this;
+        _this.time = 0;
+        return _this;
     }
     Power.prototype.precalc = function () {
-        this.low = [calx(this.x), caly(this.y), calw(this.w) / 2, calh(this.h) / 2];
-        this.grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2], this.low[0], this.low[1], this.low[2] - 100);
-        this.grd.addColorStop(0.200, "#1b1464");
-        this.grd.addColorStop(0.500, "#3a2bd5");
-        this.grd.addColorStop(0.800, "#1b1464");
+        _super.prototype.precalc.call(this);
+        this.lowc = [calx(this.x), caly(this.y), this.low[2] / 2 + 300];
     };
     Power.prototype.draw = function () {
-        Date.now() % 5000;
-        mna.beginPath();
-        mna.strokeStyle = this.stroke[0];
-        mna.lineWidth = this.stroke[1];
-        mna.arc(this.low[0], this.low[1], this.low[2], 0, 2 * Math.PI, false);
-        mna.arc(this.low[0], this.low[1], this.low[2] - 100, 0, 2 * Math.PI, true);
+        var a = cnv.dt % 3001, k = 1 - (2 * a / (3000 + a));
+        // console.log(k+" "+a);
+        this.grd = mna.createRadialGradient(this.lowc[0], this.lowc[1], this.lowc[2] * k, this.lowc[0], this.lowc[1], (this.lowc[2] * k - 200 > 0) ? this.lowc[2] * k - 200 : 0);
+        this.grd.addColorStop(0.000, "#1b1464");
+        this.grd.addColorStop(0.500, "#003ce3");
+        this.grd.addColorStop(1.000, "#1b1464");
         mna.fillStyle = this.grd;
-        mna.fill();
-        mna.closePath();
+        mna.fillRect(this.low[0], this.low[1], this.low[2], this.low[3]);
     };
     return Power;
 }(Base));
+var Roll = /** @class */ (function () {
+    function Roll() {
+        this.low = new Array(15);
+    }
+    Roll.prototype.precalc = function () {
+        for (var i = 0; i < 15; i++) {
+            this.low[i] = Math.round(cnv.width * (i + 1) / 16);
+        }
+    };
+    Roll.prototype.draw = function () {
+        for (var i = 0; i < 15; i++) {
+            mna.strokeStyle = "#ffffff";
+            mna.lineWidth = 1;
+            mna.beginPath();
+            mna.moveTo(this.low[i], 0);
+            mna.lineTo(this.low[i], cnv.height);
+            mna.stroke();
+        }
+    };
+    return Roll;
+}());
 //CALCULATE
 function calc() {
     mna.canvas.width = mna.canvas.clientWidth;
@@ -264,36 +296,38 @@ var cnv = {};
 var list;
 list = [new Power(0, 0, 1, 1),
     new Texture("resources/background.png", 0, 0, 16, 9),
+    new Roll(),
     new Rectangle(0, 0, 1620, 1000),
     new Circle(0, -155, 50, 5),
     new Rectangle(0, -192, 47, 70),
-    new Drop(20, 20)
+    new Word(0, 0, "space 1966", "arame", 50),
+    new Drop(20)
 ];
 // list[1].visible=false;
 // list[2].visible=false;
 // list[3].visible=false;
 // list[4].visible=false;
-list[2].filled = true;
-list[2].setFill("rgba(167,167,167,0.6)");
+list[3].setStroke(0);
 list[3].filled = true;
-list[3].setStroke("#5eef0c");
-list[3].setFill("rgba(255,20,20,0.6)");
+list[3].setFill("rgba(0,30,40,0.6)");
 list[4].filled = true;
-list[4].setStroke("#5eef0c");
+list[4].setStroke("#ffffff");
 list[4].setFill("rgba(255,20,20,0.6)");
-list[5].setStroke("#efefef", 2);
+list[5].filled = true;
+list[5].setStroke("#ffffff");
+list[5].setFill("rgba(255,20,20,0.6)");
+// list[5].setStroke("#efefef",2);
 calc();
 refresh();
 //EVENTS
 window.onresize = calc;
 document.onmousedown = function (event) {
-    list[5].startDrop(event.pageX, event.pageY);
+    list[list.length - 1].startDrop(event.pageX, event.pageY);
 };
 //REFRESH
 function refresh() {
     requestAnimationFrame(refresh);
-    mna.fillStyle = "#1b1464";
-    mna.fillRect(0, 0, cnv.width, cnv.height);
+    cnv.dt = Date.now();
     for (var i = 0, max = list.length; i < max; i++) {
         list[i].draw();
     }

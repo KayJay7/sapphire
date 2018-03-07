@@ -1,26 +1,32 @@
+$app-bck:rgba(0, 30, 40, .62);
+
 @font-face {
-  font-family: "arame";
-  src: url("resources/fonts/arame.otf");
+  font-family: 'arame';
+  src: url('resources/fonts/arame.otf');
 }
 
 body {
-  margin: 0px;
   height: 100vh;
+  margin: 0;
   width: 100vw;
 }
 
 canvas {
-  width: 100vw;
   height: 100vh;
-  display: block;
   position: fixed;
-
+  width: 100vw;
 }
 
-#app{
-  background-color: brown;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-z-index: 1;
+#app {
+  background: $app-bck;
+  bottom: 0;
+  height: 62vw;
+  left: 0;
+  margin: auto;
+  max-height: 100vh;
+  max-width: 162vh;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 100vw;
 }

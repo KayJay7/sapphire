@@ -413,7 +413,7 @@ list=[new Power(0,0,1,1),
 
 list[4].setStroke("rgba(0,0,0,0)",0);
 list[4].filled=true;
-list[4].setFill("rgba(0,30,40,0.1)");
+list[4].setFill("#00ff0e");
 
 list[5].filled=true;
 list[5].setStroke("#ffffff");

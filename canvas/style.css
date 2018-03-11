@@ -1,6 +1,9 @@
 @font-face {
   font-family: 'arame';
   src: url("resources/fonts/arame.otf"); }
+@font-face {
+  font-family: 'neon';
+  src: url("resources/fonts/neon.otf"); }
 body {
   height: 100vh;
   margin: 0;
@@ -13,6 +16,7 @@ canvas {
 
 #app {
   background: rgba(0, 30, 40, 0.62);
+  border-collapse: collapse;
   bottom: 0;
   height: 62vw;
   left: 0;
@@ -23,5 +27,18 @@ canvas {
   right: 0;
   top: 0;
   width: 100vw; }
+
+#title {
+  color: #06c;
+  font-family: neon, serif;
+  font-size: 5rem;
+  height: 10%;
+  text-align: center;
+  user-select: none;
+  width: 100%; }
+
+td,
+th {
+  border: 3px solid red; }
 
 /*# sourceMappingURL=style.css.map */

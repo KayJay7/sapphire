@@ -1,8 +1,19 @@
-$app-bck:rgba(0, 30, 40, .62);
+$app-bck: rgba(0, 30, 40, .62);
+$title-color: #06c;
+
+@function convert() {
+
+  @return 0;
+}
 
 @font-face {
   font-family: 'arame';
   src: url('resources/fonts/arame.otf');
+}
+
+@font-face {
+  font-family: 'neon';
+  src: url('resources/fonts/neon.otf');
 }
 
 body {
@@ -19,6 +30,7 @@ canvas {
 
 #app {
   background: $app-bck;
+  border-collapse: collapse;
   bottom: 0;
   height: 62vw;
   left: 0;
@@ -29,4 +41,19 @@ canvas {
   right: 0;
   top: 0;
   width: 100vw;
+}
+
+#title {
+  color: $title-color;
+  font-family: neon, serif;
+  font-size: 5rem;
+  height: 10%;
+  text-align: center;
+  user-select: none;
+  width: 100%;
+}
+
+td,
+th {
+  border: 3px solid red;
 }

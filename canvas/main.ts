@@ -13,12 +13,12 @@ type Tcnv={
     dt:number;
 }
 abstract class Base{
+    public visible:boolean;
+    public filled:boolean;
     protected x:number;
     protected y:number;
     protected w:number;
     protected h:number;
-    public visible:boolean;
-    public filled:boolean;
     protected stroke:[string,number];
     protected fill:[string];
     protected low:number[];
@@ -32,7 +32,7 @@ abstract class Base{
         this.fill=["#000000"];
         this.visible=true;
         this.filled=false;
-        this.low=new Array();
+        // this.low=[];
     }
 
     public setX(x:number):void{
@@ -206,31 +206,6 @@ class Circle extends Base{
         }
     }
 }
-class Drop extends Base{
-    private start:number;
-
-    constructor(radius:number){
-        super(0,0,radius*2,radius*2);
-        this.start= -1;
-    }
-
-    public startDrop(x:number,y:number):void{
-        this.start=cnv.dt;//Date.now();
-        this.x=x;
-        this.y=y;
-    }
-
-    draw():void{
-        let a:number=(cnv.dt-this.start);
-        if(a<151){
-            mna.beginPath();
-            mna.strokeStyle="#efefef";
-            mna.lineWidth=2;
-            mna.arc(this.x,this.y,this.w*a/(150+a),0,2*Math.PI);
-            mna.stroke();
-        }
-    }
-}
 class Power extends Base{
     private grd:CanvasGradient;
     private time:number;
@@ -256,6 +231,37 @@ class Power extends Base{
         mna.beginPath();
         mna.fillStyle=this.grd;
         mna.fillRect(this.low[0],this.low[1],this.low[2],this.low[3]);
+    }
+}
+class Drop{
+    private radius:number;
+    private drops:[/*x*/number,/*y*/number,/*start*/number][];
+
+    constructor(radius:number){
+        this.radius=radius;
+        this.drops=[];
+    }
+
+    public startDrop(x:number,y:number):void{
+        this.drops.push([x,y,cnv.dt]);
+    }
+
+    draw():void{
+        let a:number;
+        for(let i:number=0; i<this.drops.length; i++){
+            a=(cnv.dt-this.drops[i][2]);
+            if(a<1001){
+                a=2*a/(1000+a);
+                mna.beginPath();
+                mna.strokeStyle="rgba(239,239,239,"+(1-a)+")";
+                mna.lineWidth=2;
+                mna.arc(this.drops[i][0],this.drops[i][1],this.radius*a,0,2*Math.PI);
+                mna.stroke();
+            }
+            else{
+                this.drops.shift();
+            }
+        }
     }
 }
 class Roll{
@@ -286,23 +292,23 @@ class Note{
     private score:[Word,number,number,number][];
 
     constructor(){
-        this.score=new Array(8);
-        let dt=Date.now();
-        for(let i:number=0;i<8;i++){
-            this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
-            //random();
-            this.score[i][0].setX(((Math.random()*14 | 0)+1)*cnv.w/15);
-            this.score[i][1]=(((Math.random()*5) | 0)+1)*1000;
-            this.score[i][2]=(Math.random()*cnv.h) | 0;
-            console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
-        }
+        // this.score=new Array(8);
+        // let dt=Date.now();
+        // for(let i:number=0;i<8;i++){
+        //     this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
+        //     //random();
+        //     this.score[i][0].setX(((Math.random()*14 | 0)+1)*cnv.w/15);
+        //     this.score[i][1]=(((Math.random()*5) | 0)+1)*1000;
+        //     this.score[i][2]=(Math.random()*cnv.h) | 0;
+        //     console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
+        // }
 
     }
 
     precalc():void{
-        for(let i:number=0;i<8;i++){
-            this.score[i][0].precalc();
-        }
+        // for(let i:number=0;i<8;i++){
+        //     this.score[i][0].precalc();
+        // }
     }
 
     draw():void{
@@ -404,12 +410,10 @@ list=[new Power(0,0,1,1),
     new Circle(0,-155,50,5),
     new Rectangle(0,-192,47,70),
     new Word(0,0,"space 1966","arame",50),
-    new Drop(20)
+    new Drop(300)
 ];
-// list[1].visible=false;
-// list[2].visible=false;
-// list[3].visible=false;
-// list[4].visible=false;
+
+list[4].visible=false;
 
 list[4].setStroke("rgba(0,0,0,0)",0);
 list[4].filled=true;
@@ -422,9 +426,6 @@ list[5].setFill("rgba(255,20,20,0.6)");
 list[6].filled=true;
 list[6].setStroke("#ffffff");
 list[6].setFill("rgba(255,20,20,0.6)");
-
-
-// list[5].setStroke("#efefef",2);
 
 calc();
 refresh();

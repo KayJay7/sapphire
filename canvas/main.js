@@ -19,7 +19,7 @@ var Base = /** @class */ (function () {
         this.fill = ["#000000"];
         this.visible = true;
         this.filled = false;
-        this.low = new Array();
+        // this.low=[];
     }
     Base.prototype.setX = function (x) {
         this.x = x;
@@ -182,30 +182,6 @@ var Circle = /** @class */ (function (_super) {
     };
     return Circle;
 }(Base));
-var Drop = /** @class */ (function (_super) {
-    __extends(Drop, _super);
-    function Drop(radius) {
-        var _this = _super.call(this, 0, 0, radius * 2, radius * 2) || this;
-        _this.start = -1;
-        return _this;
-    }
-    Drop.prototype.startDrop = function (x, y) {
-        this.start = cnv.dt; //Date.now();
-        this.x = x;
-        this.y = y;
-    };
-    Drop.prototype.draw = function () {
-        var a = (cnv.dt - this.start);
-        if (a < 151) {
-            mna.beginPath();
-            mna.strokeStyle = "#efefef";
-            mna.lineWidth = 2;
-            mna.arc(this.x, this.y, this.w * a / (150 + a), 0, 2 * Math.PI);
-            mna.stroke();
-        }
-    };
-    return Drop;
-}(Base));
 var Power = /** @class */ (function (_super) {
     __extends(Power, _super);
     function Power(x, y, w, h) {
@@ -229,6 +205,33 @@ var Power = /** @class */ (function (_super) {
     };
     return Power;
 }(Base));
+var Drop = /** @class */ (function () {
+    function Drop(radius) {
+        this.radius = radius;
+        this.drops = [];
+    }
+    Drop.prototype.startDrop = function (x, y) {
+        this.drops.push([x, y, cnv.dt]);
+    };
+    Drop.prototype.draw = function () {
+        var a;
+        for (var i = 0; i < this.drops.length; i++) {
+            a = (cnv.dt - this.drops[i][2]);
+            if (a < 1001) {
+                a = 2 * a / (1000 + a);
+                mna.beginPath();
+                mna.strokeStyle = "rgba(239,239,239," + (1 - a) + ")";
+                mna.lineWidth = 2;
+                mna.arc(this.drops[i][0], this.drops[i][1], this.radius * a, 0, 2 * Math.PI);
+                mna.stroke();
+            }
+            else {
+                this.drops.shift();
+            }
+        }
+    };
+    return Drop;
+}());
 var Roll = /** @class */ (function () {
     function Roll() {
         this.low = new Array(15);
@@ -252,21 +255,21 @@ var Roll = /** @class */ (function () {
 }());
 var Note = /** @class */ (function () {
     function Note() {
-        this.score = new Array(8);
-        var dt = Date.now();
-        for (var i = 0; i < 8; i++) {
-            this.score[i] = [new Word(0, 0, "DO", "arame", 50), 0, 0, dt];
-            //random();
-            this.score[i][0].setX(((Math.random() * 14 | 0) + 1) * cnv.w / 15);
-            this.score[i][1] = (((Math.random() * 5) | 0) + 1) * 1000;
-            this.score[i][2] = (Math.random() * cnv.h) | 0;
-            console.log(this.score[i][1] + " " + this.score[i][2] + " " + this.score[i][3]);
-        }
+        // this.score=new Array(8);
+        // let dt=Date.now();
+        // for(let i:number=0;i<8;i++){
+        //     this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
+        //     //random();
+        //     this.score[i][0].setX(((Math.random()*14 | 0)+1)*cnv.w/15);
+        //     this.score[i][1]=(((Math.random()*5) | 0)+1)*1000;
+        //     this.score[i][2]=(Math.random()*cnv.h) | 0;
+        //     console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
+        // }
     }
     Note.prototype.precalc = function () {
-        for (var i = 0; i < 8; i++) {
-            this.score[i][0].precalc();
-        }
+        // for(let i:number=0;i<8;i++){
+        //     this.score[i][0].precalc();
+        // }
     };
     Note.prototype.draw = function () {
         // //VARIABILI CHE ANDRANNO RIVISTE POI
@@ -361,12 +364,9 @@ list = [new Power(0, 0, 1, 1),
     new Circle(0, -155, 50, 5),
     new Rectangle(0, -192, 47, 70),
     new Word(0, 0, "space 1966", "arame", 50),
-    new Drop(20)
+    new Drop(300)
 ];
-// list[1].visible=false;
-// list[2].visible=false;
-// list[3].visible=false;
-// list[4].visible=false;
+list[4].visible = false;
 list[4].setStroke("rgba(0,0,0,0)", 0);
 list[4].filled = true;
 list[4].setFill("#00ff0e");
@@ -376,7 +376,6 @@ list[5].setFill("rgba(255,20,20,0.6)");
 list[6].filled = true;
 list[6].setStroke("#ffffff");
 list[6].setFill("rgba(255,20,20,0.6)");
-// list[5].setStroke("#efefef",2);
 calc();
 refresh();
 //EVENTS

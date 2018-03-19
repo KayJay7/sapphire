@@ -187,6 +187,7 @@ var Power = /** @class */ (function (_super) {
     function Power(x, y, w, h) {
         var _this = _super.call(this, x, y, w, h) || this;
         _this.time = 0;
+        _this.step = 0;
         return _this;
     }
     Power.prototype.precalc = function () {
@@ -194,7 +195,7 @@ var Power = /** @class */ (function (_super) {
         this.lowc = [calx(this.x), caly(this.y), this.low[2] / 2 + 300];
     };
     Power.prototype.draw = function () {
-        var a = cnv.dt % 3001, k = 1 - (2 * a / (3000 + a));
+        var k = 1 - (2 * this.step / (180 + this.step));
         this.grd = mna.createRadialGradient(this.lowc[0], this.lowc[1], this.lowc[2] * k, this.lowc[0], this.lowc[1], (this.lowc[2] * k - 200 > 0) ? this.lowc[2] * k - 200 : 0);
         this.grd.addColorStop(0.000, "#1b1464");
         this.grd.addColorStop(0.500, "#003ce3");
@@ -202,6 +203,7 @@ var Power = /** @class */ (function (_super) {
         mna.beginPath();
         mna.fillStyle = this.grd;
         mna.fillRect(this.low[0], this.low[1], this.low[2], this.low[3]);
+        this.step = (this.step + 1) % 181;
     };
     return Power;
 }(Base));
@@ -211,19 +213,20 @@ var Drop = /** @class */ (function () {
         this.drops = [];
     }
     Drop.prototype.startDrop = function (x, y) {
-        this.drops.push([x, y, cnv.dt]);
+        this.drops.push([x, y, 0]);
     };
     Drop.prototype.draw = function () {
-        var a;
+        var step;
         for (var i = 0; i < this.drops.length; i++) {
-            a = (cnv.dt - this.drops[i][2]);
-            if (a < 1001) {
-                a = 2 * a / (1000 + a);
+            step = this.drops[i][2];
+            if (step < 1001) {
+                step = 2 * step / (1000 + step);
                 mna.beginPath();
-                mna.strokeStyle = "rgba(239,239,239," + (1 - a) + ")";
+                mna.strokeStyle = "rgba(239,239,239," + (1 - step) + ")";
                 mna.lineWidth = 2;
-                mna.arc(this.drops[i][0], this.drops[i][1], this.radius * a, 0, 2 * Math.PI);
+                mna.arc(this.drops[i][0], this.drops[i][1], this.radius * step, 0, 2 * Math.PI);
                 mna.stroke();
+                this.drops[i][2]++;
             }
             else {
                 this.drops.shift();
@@ -255,58 +258,58 @@ var Roll = /** @class */ (function () {
 }());
 var Note = /** @class */ (function () {
     function Note() {
-        // this.score=new Array(8);
-        // let dt=Date.now();
-        // for(let i:number=0;i<8;i++){
-        //     this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
-        //     //random();
-        //     this.score[i][0].setX(((Math.random()*14 | 0)+1)*cnv.w/15);
-        //     this.score[i][1]=(((Math.random()*5) | 0)+1)*1000;
-        //     this.score[i][2]=(Math.random()*cnv.h) | 0;
-        //     console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
-        // }
+        /*this.score=new Array(8);
+        let dt=Date.now();
+        for(let i:number=0; i<8; i++){
+            this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
+            //random();
+            this.score[i][0].setX(((Math.random()*14|0)+1)*cnv.w/15);
+            this.score[i][1]=(((Math.random()*5)|0)+1)*1000;
+            this.score[i][2]=(Math.random()*cnv.h)|0;
+            console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
+        }*/
     }
     Note.prototype.precalc = function () {
-        // for(let i:number=0;i<8;i++){
-        //     this.score[i][0].precalc();
-        // }
+        /*for(let i:number=0; i<8; i++){
+            this.score[i][0].precalc();
+        }*/
     };
     Note.prototype.draw = function () {
-        // //VARIABILI CHE ANDRANNO RIVISTE POI
-        // const trt:number=7000;//transition time
-        //
-        // for(let i:number=0;i<8;i++){
-        //     let note:Word=this.score[i][0],idle:number=this.score[i][1],stall:number=this.score[i][2],ct:number=cnv.dt-this.score[i][3];
-        //
-        //     if(ct>stall){
-        //         if(ct<idle+trt){
-        //             note.setY((ct-idle)/trt*stall);//qua metteremo l'ease
-        //             console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" AAA");
-        //         }else {
-        //             if(ct>(2*idle)+trt){
-        //                 note.setY(((ct-(2*idle)+trt)/trt*(1000-stall))+stall);
-        //                 console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
-        //             }else{
-        //                 /*(Math.random() * 6 | 0) + 1
-        //                 ~~(Math.random() * 6) + 1*/
-        //                 //Double Tilde ~~a and Bitwise OR (a | 0) are faster ways to write Math.floor(a) – edi9999
-        //                 //a | 0 is also the fastest and most optimized way to convert a string to an integer.
-        //                 // It only works with strings containing integers ("444" and "-444"), i.e. no floats/fractions.
-        //                 // It yields a 0 for everything that fails. It is one of the main optimizations behind asm.js
-        //                 note.setX(((Math.random()*14 | 0)+1)*cnv.w/16);
-        //                 stall=(Math.random()*cnv.h) | 0;
-        //                 idle=(((Math.random()*5) | 0)+1)*1000;
-        //                 this.score[i][3]=cnv.dt;
-        //                 console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" CCC");
-        //             }
-        //         }
-        //         note.draw();
-        //     }else{
-        //         console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
-        //     }
-        //     this.score[i][1]=idle;
-        //     this.score[i][2]=stall;
-        // }
+        //VARIABILI CHE ANDRANNO RIVISTE POI
+        /*const trt:number=7000;//transition time
+
+        for(let i:number=0;i<8;i++){
+            let note:Word=this.score[i][0],idle:number=this.score[i][1],stall:number=this.score[i][2],ct:number=cnv.dt-this.score[i][3];
+
+            if(ct>stall){
+                if(ct<idle+trt){
+                    note.setY((ct-idle)/trt*stall);//qua metteremo l'ease
+                    console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" AAA");
+                }else {
+                    if(ct>(2*idle)+trt){
+                        note.setY(((ct-(2*idle)+trt)/trt*(1000-stall))+stall);
+                        console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
+                    }else{
+                        /!*(Math.random() * 6 | 0) + 1
+                        ~~(Math.random() * 6) + 1*!/
+                        //Double Tilde ~~a and Bitwise OR (a | 0) are faster ways to write Math.floor(a) – edi9999
+                        //a | 0 is also the fastest and most optimized way to convert a string to an integer.
+                        // It only works with strings containing integers ("444" and "-444"), i.e. no floats/fractions.
+                        // It yields a 0 for everything that fails. It is one of the main optimizations behind asm.js
+                        note.setX(((Math.random()*14 | 0)+1)*cnv.w/16);
+                        stall=(Math.random()*cnv.h) | 0;
+                        idle=(((Math.random()*5) | 0)+1)*1000;
+                        this.score[i][3]=cnv.dt;
+                        console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" CCC");
+                    }
+                }
+                note.draw();
+            }else{
+                console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
+            }
+            this.score[i][1]=idle;
+            this.score[i][2]=stall;
+        }*/
     };
     return Note;
 }());

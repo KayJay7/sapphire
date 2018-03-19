@@ -6,3 +6,5 @@ vendor
 .idea/misc.xml
 .idea/*
 main.js
+loading.css
+loading.css.map

@@ -23,17 +23,17 @@ var Base = /** @class */ (function () {
     }
     Base.prototype.setX = function (x) {
         this.x = x;
-        this.low[0] = calx(this.x - this.w / 2);
+        this.low[0] = calx(x - this.w / 2);
     };
     Base.prototype.setY = function (y) {
         this.y = y;
-        this.low[1] = caly(y - this.h / 2);
+        this.low[1] = caly(y + this.h / 2);
     };
     Base.prototype.setXY = function (x, y) {
         this.x = x;
         this.y = y;
         this.low[0] = calx(x - this.w / 2);
-        this.low[1] = caly(y - this.h / 2);
+        this.low[1] = caly(y + this.h / 2);
     };
     Base.prototype.setW = function (w) {
         this.w = w;
@@ -49,6 +49,13 @@ var Base = /** @class */ (function () {
         this.low[2] = calw(w);
         this.low[3] = calh(h);
     };
+    Object.defineProperty(Base.prototype, "getLow", {
+        get: function () {
+            return this.low;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Base.prototype.setStroke = function (val1, val2) {
         if (typeof val1 == "string") {
             this.stroke[0] = val1;
@@ -87,7 +94,7 @@ var Base = /** @class */ (function () {
         }
     };
     Base.prototype.precalc = function () {
-        this.low = [calx(this.x - this.w / 2), caly(this.y - this.h / 2), calw(this.w), calh(this.h)];
+        this.low = [calx(this.x - this.w / 2), caly(this.y + this.h / 2), calw(this.w), calh(this.h)];
     };
     return Base;
 }());
@@ -129,19 +136,37 @@ var Texture = /** @class */ (function (_super) {
 var Word = /** @class */ (function (_super) {
     __extends(Word, _super);
     function Word(x, y, text, font, size) {
-        var _this = _super.call(this, x, y, 0, size) || this;
+        var _this = _super.call(this, x, y, size, 0) || this;
         _this.text = text;
         _this.font = font;
         return _this;
     }
+    Word.prototype.setX = function (x) {
+        this.x = x;
+        this.low[0] = calx(x);
+    };
+    Word.prototype.setY = function (y) {
+        this.y = y;
+        this.low[1] = caly(y);
+    };
+    Word.prototype.setXY = function (x, y) {
+        this.x = x;
+        this.y = y;
+        this.low[0] = calx(x);
+        this.low[1] = caly(y);
+    };
     Word.prototype.precalc = function () {
-        this.low = [calx(this.x), caly(this.y), calh(this.h)];
+        this.low = [calx(this.x), caly(this.y), calh(this.w)];
     };
     Word.prototype.draw = function () {
-        // console.log(this.low[2]);
-        mna.font = this.low[2] + "px " + this.font;
-        mna.textAlign = "center";
-        mna.fillText(this.text, this.low[0], this.low[1]);
+        if (this.visible) {
+            mna.beginPath();
+            mna.fillStyle = this.fill[0];
+            mna.font = this.low[2] + "px " + this.font;
+            mna.textBaseline = 'middle';
+            mna.textAlign = "center";
+            mna.fillText(this.text, this.low[0], this.low[1]);
+        }
     };
     return Word;
 }(Base));
@@ -184,26 +209,24 @@ var Circle = /** @class */ (function (_super) {
 }(Base));
 var Power = /** @class */ (function (_super) {
     __extends(Power, _super);
-    function Power(x, y, w, h) {
-        var _this = _super.call(this, x, y, w, h) || this;
-        _this.time = 0;
+    function Power() {
+        var _this = _super.call(this, 0, 0, 1, 1) || this;
         _this.step = 0;
         return _this;
     }
     Power.prototype.precalc = function () {
-        _super.prototype.precalc.call(this);
-        this.lowc = [calx(this.x), caly(this.y), this.low[2] / 2 + 300];
+        this.low = [calx(this.x), caly(this.y), calw(this.w) / 2 + 400];
     };
     Power.prototype.draw = function () {
         var k = 1 - (2 * this.step / (180 + this.step));
-        this.grd = mna.createRadialGradient(this.lowc[0], this.lowc[1], this.lowc[2] * k, this.lowc[0], this.lowc[1], (this.lowc[2] * k - 200 > 0) ? this.lowc[2] * k - 200 : 0);
+        this.step = (this.step + 1) % 181;
+        this.grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2] * k, this.low[0], this.low[1], (this.low[2] * k - 200 > 0) ? this.low[2] * k - 200 : 0);
         this.grd.addColorStop(0.000, "#1b1464");
         this.grd.addColorStop(0.500, "#003ce3");
         this.grd.addColorStop(1.000, "#1b1464");
         mna.beginPath();
         mna.fillStyle = this.grd;
-        mna.fillRect(this.low[0], this.low[1], this.low[2], this.low[3]);
-        this.step = (this.step + 1) % 181;
+        mna.fillRect(0, 0, cnv.width, cnv.height);
     };
     return Power;
 }(Base));
@@ -214,19 +237,22 @@ var Drop = /** @class */ (function () {
     }
     Drop.prototype.startDrop = function (x, y) {
         this.drops.push([x, y, 0]);
+        if (this.drops.length > 16) {
+            this.drops.shift();
+        }
     };
     Drop.prototype.draw = function () {
         var step;
         for (var i = 0; i < this.drops.length; i++) {
             step = this.drops[i][2];
-            if (step < 1001) {
-                step = 2 * step / (1000 + step);
+            this.drops[i][2]++;
+            if (step < 501) {
+                step = 2 * step / (500 + step);
                 mna.beginPath();
                 mna.strokeStyle = "rgba(239,239,239," + (1 - step) + ")";
                 mna.lineWidth = 2;
                 mna.arc(this.drops[i][0], this.drops[i][1], this.radius * step, 0, 2 * Math.PI);
                 mna.stroke();
-                this.drops[i][2]++;
             }
             else {
                 this.drops.shift();
@@ -241,7 +267,7 @@ var Roll = /** @class */ (function () {
     }
     Roll.prototype.precalc = function () {
         for (var i = 0; i < 15; i++) {
-            this.low[i] = Math.round(cnv.width * (i + 1) / 16) + 0.5;
+            this.low[i] = Math.round(cnv.width / 16 * (i + 1)) + 0.5;
         }
     };
     Roll.prototype.draw = function () {
@@ -256,60 +282,115 @@ var Roll = /** @class */ (function () {
     };
     return Roll;
 }());
+var LineBetweenWords = /** @class */ (function () {
+    function LineBetweenWords(w1, w2) {
+        this.w1 = w1;
+        this.w2 = w2;
+    }
+    LineBetweenWords.prototype.draw = function () {
+        if (this.w1.visible && this.w2.visible) {
+            mna.beginPath();
+            mna.strokeStyle = "#fff";
+            mna.lineWidth = 1;
+            mna.moveTo(this.w1.getLow[0], this.w1.getLow[1]);
+            mna.lineTo(this.w2.getLow[0], this.w2.getLow[1]);
+            mna.stroke();
+        }
+    };
+    return LineBetweenWords;
+}());
 var Note = /** @class */ (function () {
     function Note() {
-        /*this.score=new Array(8);
-        let dt=Date.now();
-        for(let i:number=0; i<8; i++){
-            this.score[i]=[new Word(0,0,"DO","arame",50),0,0,dt];
-            //random();
-            this.score[i][0].setX(((Math.random()*14|0)+1)*cnv.w/15);
-            this.score[i][1]=(((Math.random()*5)|0)+1)*1000;
-            this.score[i][2]=(Math.random()*cnv.h)|0;
-            console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]);
-        }*/
+        this.transitionTime = 60;
+        this.score = new Array(8);
+        this.lines = new Array(28);
+        for (var i = 0; i < 8; i++) {
+            this.score[i] = [new Word(0, 0, "", "arame", 50), 0, 0, 0, 0, 0, 0];
+            this.score[i][0].setFill("#ffffff");
+        }
+        for (var i = 0, k = 1, j = 0; i < 28; i++, j++) {
+            if (j == k) {
+                j = 0;
+                k++;
+            }
+            this.lines[i] = new LineBetweenWords(this.score[k][0], this.score[j][0]);
+        }
     }
     Note.prototype.precalc = function () {
-        /*for(let i:number=0; i<8; i++){
+        for (var i = 0; i < 8; i++) {
             this.score[i][0].precalc();
-        }*/
+        }
+        this.limit = cnv.h / 2 + 50;
     };
     Note.prototype.draw = function () {
-        //VARIABILI CHE ANDRANNO RIVISTE POI
-        /*const trt:number=7000;//transition time
-
-        for(let i:number=0;i<8;i++){
-            let note:Word=this.score[i][0],idle:number=this.score[i][1],stall:number=this.score[i][2],ct:number=cnv.dt-this.score[i][3];
-
-            if(ct>stall){
-                if(ct<idle+trt){
-                    note.setY((ct-idle)/trt*stall);//qua metteremo l'ease
-                    console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" AAA");
-                }else {
-                    if(ct>(2*idle)+trt){
-                        note.setY(((ct-(2*idle)+trt)/trt*(1000-stall))+stall);
-                        console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
-                    }else{
-                        /!*(Math.random() * 6 | 0) + 1
-                        ~~(Math.random() * 6) + 1*!/
-                        //Double Tilde ~~a and Bitwise OR (a | 0) are faster ways to write Math.floor(a) – edi9999
-                        //a | 0 is also the fastest and most optimized way to convert a string to an integer.
-                        // It only works with strings containing integers ("444" and "-444"), i.e. no floats/fractions.
-                        // It yields a 0 for everything that fails. It is one of the main optimizations behind asm.js
-                        note.setX(((Math.random()*14 | 0)+1)*cnv.w/16);
-                        stall=(Math.random()*cnv.h) | 0;
-                        idle=(((Math.random()*5) | 0)+1)*1000;
-                        this.score[i][3]=cnv.dt;
-                        console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" CCC");
+        for (var i = 0; i < 8; i++) {
+            var note = this.score[i][0];
+            var position = this.score[i][1], height = this.score[i][2], wait = this.score[i][3], stall = this.score[i][4], phase = this.score[i][5], step = this.score[i][6];
+            switch (phase) {
+                case 0:
+                    position = ((Math.random() * (14 + 14 + 1)) | 0) - 14; //da -14 a 14
+                    height = ((Math.random() * (500 + 500 + 1)) | 0) - 500; //da -500 a 500
+                    wait = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
+                    stall = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
+                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
+                    note.visible = false;
+                    note.text = "do";
+                    note.setX(cnv.w / 32 * position);
+                    note.setY(-this.limit);
+                    phase++;
+                    step = 0;
+                    break;
+                case 1:
+                    if (step < wait) {
+                        step++;
                     }
-                }
-                note.draw();
-            }else{
-                console.log(this.score[i][1]+" "+this.score[i][2]+" "+this.score[i][3]+" BBB");
+                    else {
+                        note.visible = true;
+                        phase++;
+                        step = 0;
+                    }
+                    break;
+                case 2:
+                    if (step < this.transitionTime) {
+                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (height + this.limit + 1)) - this.limit);
+                        step++;
+                    }
+                    else {
+                        phase++;
+                        step = 0;
+                    }
+                    break;
+                case 3:
+                    if (step < stall) {
+                        step++;
+                    }
+                    else {
+                        phase++;
+                        step = 0;
+                    }
+                    break;
+                case 4:
+                    if (step < this.transitionTime) {
+                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (this.limit - height + 1)) + height);
+                        step++;
+                    }
+                    else {
+                        phase = 0;
+                        step = 0;
+                    }
+                    break;
             }
-            this.score[i][1]=idle;
-            this.score[i][2]=stall;
-        }*/
+            this.score[i][1] = position;
+            this.score[i][2] = height;
+            this.score[i][3] = wait;
+            this.score[i][4] = stall;
+            this.score[i][5] = phase;
+            this.score[i][6] = step;
+            note.draw();
+        }
+        for (var i = 0; i < 28; i++) {
+            this.lines[i].draw();
+        }
     };
     return Note;
 }());
@@ -348,7 +429,7 @@ function calx(x) {
     return (x + 810) * cnv.uw + cnv.ox;
 }
 function caly(y) {
-    return (y + 500) * cnv.uh + cnv.oy;
+    return (-y + 500) * cnv.uh + cnv.oy;
 }
 function calw(w) {
     return w * cnv.uw;
@@ -356,10 +437,64 @@ function calw(w) {
 function calh(h) {
     return h * cnv.uh;
 }
+var EasingFunctions = {
+    // no easing, no acceleration
+    linear: function (t) {
+        return t;
+    },
+    // accelerating from zero velocity
+    easeInQuad: function (t) {
+        return t * t;
+    },
+    // decelerating to zero velocity
+    easeOutQuad: function (t) {
+        return t * (2 - t);
+    },
+    // acceleration until halfway, then deceleration
+    easeInOutQuad: function (t) {
+        return t < .5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    },
+    // accelerating from zero velocity
+    easeInCubic: function (t) {
+        return t * t * t;
+    },
+    // decelerating to zero velocity
+    easeOutCubic: function (t) {
+        return (--t) * t * t + 1;
+    },
+    // acceleration until halfway, then deceleration
+    easeInOutCubic: function (t) {
+        return t < .5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1;
+    },
+    // accelerating from zero velocity
+    easeInQuart: function (t) {
+        return t * t * t * t;
+    },
+    // decelerating to zero velocity
+    easeOutQuart: function (t) {
+        return 1 - (--t) * t * t * t;
+    },
+    // acceleration until halfway, then deceleration
+    easeInOutQuart: function (t) {
+        return t < .5 ? 8 * t * t * t * t : 1 - 8 * (--t) * t * t * t;
+    },
+    // accelerating from zero velocity
+    easeInQuint: function (t) {
+        return t * t * t * t * t;
+    },
+    // decelerating to zero velocity
+    easeOutQuint: function (t) {
+        return 1 + (--t) * t * t * t * t;
+    },
+    // acceleration until halfway, then deceleration
+    easeInOutQuint: function (t) {
+        return t < .5 ? 16 * t * t * t * t * t : 1 + 16 * (--t) * t * t * t * t;
+    }
+};
 //START
 var cnv = {};
 var list;
-list = [new Power(0, 0, 1, 1),
+list = [new Power(),
     new Texture("resources/background.png", 0, 0, 16, 9),
     new Roll(),
     new Note(),
@@ -369,6 +504,7 @@ list = [new Power(0, 0, 1, 1),
     new Word(0, 0, "space 1966", "arame", 50),
     new Drop(300)
 ];
+list[1].visible = false;
 list[4].visible = false;
 list[4].setStroke("rgba(0,0,0,0)", 0);
 list[4].filled = true;
@@ -379,6 +515,7 @@ list[5].setFill("rgba(255,20,20,0.6)");
 list[6].filled = true;
 list[6].setStroke("#ffffff");
 list[6].setFill("rgba(255,20,20,0.6)");
+list[7].setFill("#ff0026");
 calc();
 refresh();
 //EVENTS
@@ -389,7 +526,7 @@ document.onmousedown = function (event) {
 //REFRESH
 function refresh() {
     requestAnimationFrame(refresh);
-    cnv.dt = Date.now();
+    // cnv.dt=Date.now();
     for (var i = 0, max = list.length; i < max; i++) {
         list[i].draw();
     }

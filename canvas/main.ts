@@ -64,6 +64,13 @@ abstract class Base{
         this.low[3]=calh(h);
     }
 
+    get getX():number{
+        return this.x;
+    }
+    get getY():number{
+        return this.y;
+    }
+
     get getLow():number[]{
         return this.low;
     }
@@ -247,7 +254,7 @@ class Power extends Base{
         this.step=(this.step+1)%181;
         this.grd=mna.createRadialGradient(this.low[0],this.low[1],this.low[2]*k,this.low[0],this.low[1],(this.low[2]*k-200>0)?this.low[2]*k-200:0);
         this.grd.addColorStop(0.000,"#1b1464");
-        this.grd.addColorStop(0.500,"#003ce3");
+        this.grd.addColorStop(0.500,"#2d75ff");//"#003ce3"
         this.grd.addColorStop(1.000,"#1b1464");
         mna.beginPath();
         mna.fillStyle=this.grd;
@@ -325,7 +332,7 @@ class LineBetweenWords{
     draw():void{
         if(this.w1.visible&&this.w2.visible){
             mna.beginPath();
-            mna.strokeStyle="#fff";
+            mna.strokeStyle="rgba(255,255,255,"+Math.abs(1-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit)))+")";
             mna.lineWidth=1;
             mna.moveTo(this.w1.getLow[0],this.w1.getLow[1]);
             mna.lineTo(this.w2.getLow[0],this.w2.getLow[1]);
@@ -337,7 +344,7 @@ class Note{
     private score:[/*note*/Word,/*position*/number,/*height*/number,/*wait*/number,/*stall*/number,/*phase*/number,/*step*/number][];
     private lines:LineBetweenWords[];
     private transitionTime:number=60;
-    private limit:number;
+    public static limit:number;
 
     constructor(){
         this.score=new Array(8);
@@ -346,7 +353,7 @@ class Note{
             this.score[i]=[new Word(0,0,"","arame",50),0,0,0,0,0,0];
             this.score[i][0].setFill("#ffffff");
         }
-        for(let i:number=0,k:number=1,j:number=0; i<28; i++,j++){
+        for(let i:number=0,k:number=1,j:number=0; i<28; i++, j++){
             if(j==k){
                 j=0;
                 k++;
@@ -359,7 +366,7 @@ class Note{
         for(let i:number=0; i<8; i++){
             this.score[i][0].precalc();
         }
-        this.limit=cnv.h/2+50;
+        Note.limit=cnv.h/2+50;
     }
 
     draw():void{
@@ -377,7 +384,7 @@ class Note{
                     note.visible=false;
                     note.text="do";
                     note.setX(cnv.w/32*position);
-                    note.setY(-this.limit);
+                    note.setY(-Note.limit);
                     phase++;
                     step=0;
                     break;
@@ -393,7 +400,7 @@ class Note{
                     break;
                 case 2:
                     if(step<this.transitionTime){
-                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(height+this.limit+1))-this.limit);
+                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(height+Note.limit+1))-Note.limit);
                         step++;
                     }
                     else{
@@ -412,7 +419,7 @@ class Note{
                     break;
                 case 4:
                     if(step<this.transitionTime){
-                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(this.limit-height+1))+height);
+                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(Note.limit-height+1))+height);
                         step++;
                     }
                     else{
@@ -552,7 +559,7 @@ list=[new Power(/*0,0,1,1*/),
     new Drop(300)
 ];
 
-list[1].visible=false;
+// list[1].visible=false;
 list[4].visible=false;
 
 list[4].setStroke("rgba(0,0,0,0)",0);

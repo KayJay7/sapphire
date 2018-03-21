@@ -49,6 +49,20 @@ var Base = /** @class */ (function () {
         this.low[2] = calw(w);
         this.low[3] = calh(h);
     };
+    Object.defineProperty(Base.prototype, "getX", {
+        get: function () {
+            return this.x;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Base.prototype, "getY", {
+        get: function () {
+            return this.y;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Object.defineProperty(Base.prototype, "getLow", {
         get: function () {
             return this.low;
@@ -222,7 +236,7 @@ var Power = /** @class */ (function (_super) {
         this.step = (this.step + 1) % 181;
         this.grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2] * k, this.low[0], this.low[1], (this.low[2] * k - 200 > 0) ? this.low[2] * k - 200 : 0);
         this.grd.addColorStop(0.000, "#1b1464");
-        this.grd.addColorStop(0.500, "#003ce3");
+        this.grd.addColorStop(0.500, "#2d75ff"); //"#003ce3"
         this.grd.addColorStop(1.000, "#1b1464");
         mna.beginPath();
         mna.fillStyle = this.grd;
@@ -290,7 +304,7 @@ var LineBetweenWords = /** @class */ (function () {
     LineBetweenWords.prototype.draw = function () {
         if (this.w1.visible && this.w2.visible) {
             mna.beginPath();
-            mna.strokeStyle = "#fff";
+            mna.strokeStyle = "rgba(255,255,255," + Math.abs(1 - (Math.max(Math.abs(this.w1.getY), Math.abs(this.w2.getY)) / (Note.limit))) + ")";
             mna.lineWidth = 1;
             mna.moveTo(this.w1.getLow[0], this.w1.getLow[1]);
             mna.lineTo(this.w2.getLow[0], this.w2.getLow[1]);
@@ -320,7 +334,7 @@ var Note = /** @class */ (function () {
         for (var i = 0; i < 8; i++) {
             this.score[i][0].precalc();
         }
-        this.limit = cnv.h / 2 + 50;
+        Note.limit = cnv.h / 2 + 50;
     };
     Note.prototype.draw = function () {
         for (var i = 0; i < 8; i++) {
@@ -336,7 +350,7 @@ var Note = /** @class */ (function () {
                     note.visible = false;
                     note.text = "do";
                     note.setX(cnv.w / 32 * position);
-                    note.setY(-this.limit);
+                    note.setY(-Note.limit);
                     phase++;
                     step = 0;
                     break;
@@ -352,7 +366,7 @@ var Note = /** @class */ (function () {
                     break;
                 case 2:
                     if (step < this.transitionTime) {
-                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (height + this.limit + 1)) - this.limit);
+                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (height + Note.limit + 1)) - Note.limit);
                         step++;
                     }
                     else {
@@ -371,7 +385,7 @@ var Note = /** @class */ (function () {
                     break;
                 case 4:
                     if (step < this.transitionTime) {
-                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (this.limit - height + 1)) + height);
+                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (Note.limit - height + 1)) + height);
                         step++;
                     }
                     else {
@@ -504,7 +518,7 @@ list = [new Power(),
     new Word(0, 0, "space 1966", "arame", 50),
     new Drop(300)
 ];
-list[1].visible = false;
+// list[1].visible=false;
 list[4].visible = false;
 list[4].setStroke("rgba(0,0,0,0)", 0);
 list[4].filled = true;

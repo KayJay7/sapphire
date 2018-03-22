@@ -282,8 +282,8 @@ class Drop{
         for(let i:number=0; i<this.drops.length; i++){
             step=this.drops[i][2];
             this.drops[i][2]++;
-            if(step<501){
-                step=2*step/(500+step);
+            if(step<401){
+                step=2*step/(400+step);
                 mna.beginPath();
                 mna.strokeStyle="rgba(239,239,239,"+(1-step)+")";
                 mna.lineWidth=2;
@@ -320,7 +320,7 @@ class Roll{
         }
     }
 }
-class LineBetweenWords{
+class Lines{
     private w1:Word;
     private w2:Word;
 
@@ -342,15 +342,16 @@ class LineBetweenWords{
 }
 class Note{
     private score:[/*note*/Word,/*position*/number,/*height*/number,/*wait*/number,/*stall*/number,/*phase*/number,/*step*/number][];
-    private lines:LineBetweenWords[];
+    private lines:Lines[];
     private transitionTime:number=60;
+    private offset:number;
     public static limit:number;
 
     constructor(){
         this.score=new Array(8);
         this.lines=new Array(28);
         for(let i:number=0; i<8; i++){
-            this.score[i]=[new Word(0,0,"","arame",50),0,0,0,0,0,0];
+            this.score[i]=[new Word(0,0,"","arame",35),0,0,0,0,0,0];
             this.score[i][0].setFill("#ffffff");
         }
         for(let i:number=0,k:number=1,j:number=0; i<28; i++, j++){
@@ -358,15 +359,16 @@ class Note{
                 j=0;
                 k++;
             }
-            this.lines[i]=new LineBetweenWords(this.score[k][0],this.score[j][0]);
+            this.lines[i]=new Lines(this.score[k][0],this.score[j][0]);
         }
     }
 
     precalc():void{
+        Note.limit=cnv.h/2+50;
+        this.offset=cnv.w/32;
         for(let i:number=0; i<8; i++){
             this.score[i][0].precalc();
         }
-        Note.limit=cnv.h/2+50;
     }
 
     draw():void{
@@ -378,13 +380,38 @@ class Note{
                 case 0:
                     position=((Math.random()*(14+14+1))|0)-14;//da -14 a 14
                     height=((Math.random()*(500+500+1))|0)-500;//da -500 a 500
-                    wait=((Math.random()*(150-50+1))|0)+50;//da 50 a 150
+                    wait=((Math.random()*(200-50+1))|0)+50;//da 50 a 200
                     stall=((Math.random()*(150-50+1))|0)+50;//da 50 a 150
-                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
-                    note.visible=false;
-                    note.text="do";
-                    note.setX(cnv.w/32*position);
+                    this.score[i][1]=position;
+                    this.score[i][2]=height;
+                    this.score[i][3]=wait;
+                    this.score[i][4]=stall;
+                    switch((position+14+6)%7){
+                        case 0:
+                            note.text="do";
+                            break;
+                        case 1:
+                            note.text="re";
+                            break;
+                        case 2:
+                            note.text="mi";
+                            break;
+                        case 3:
+                            note.text="fa";
+                            break;
+                        case 4:
+                            note.text="sol";
+                            break;
+                        case 5:
+                            note.text="la";
+                            break;
+                        case 6:
+                            note.text="si";
+                            break;
+                    }
                     note.setY(-Note.limit);
+                    note.visible=false;
+                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
                     phase++;
                     step=0;
                     break;
@@ -428,12 +455,9 @@ class Note{
                     }
                     break;
             }
-            this.score[i][1]=position;
-            this.score[i][2]=height;
-            this.score[i][3]=wait;
-            this.score[i][4]=stall;
             this.score[i][5]=phase;
             this.score[i][6]=step;
+            note.setX(this.offset*position);
             note.draw();
         }
         for(let i:number=0; i<28; i++){

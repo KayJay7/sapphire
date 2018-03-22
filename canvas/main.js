@@ -260,8 +260,8 @@ var Drop = /** @class */ (function () {
         for (var i = 0; i < this.drops.length; i++) {
             step = this.drops[i][2];
             this.drops[i][2]++;
-            if (step < 501) {
-                step = 2 * step / (500 + step);
+            if (step < 401) {
+                step = 2 * step / (400 + step);
                 mna.beginPath();
                 mna.strokeStyle = "rgba(239,239,239," + (1 - step) + ")";
                 mna.lineWidth = 2;
@@ -296,12 +296,12 @@ var Roll = /** @class */ (function () {
     };
     return Roll;
 }());
-var LineBetweenWords = /** @class */ (function () {
-    function LineBetweenWords(w1, w2) {
+var Lines = /** @class */ (function () {
+    function Lines(w1, w2) {
         this.w1 = w1;
         this.w2 = w2;
     }
-    LineBetweenWords.prototype.draw = function () {
+    Lines.prototype.draw = function () {
         if (this.w1.visible && this.w2.visible) {
             mna.beginPath();
             mna.strokeStyle = "rgba(255,255,255," + Math.abs(1 - (Math.max(Math.abs(this.w1.getY), Math.abs(this.w2.getY)) / (Note.limit))) + ")";
@@ -311,7 +311,7 @@ var LineBetweenWords = /** @class */ (function () {
             mna.stroke();
         }
     };
-    return LineBetweenWords;
+    return Lines;
 }());
 var Note = /** @class */ (function () {
     function Note() {
@@ -319,7 +319,7 @@ var Note = /** @class */ (function () {
         this.score = new Array(8);
         this.lines = new Array(28);
         for (var i = 0; i < 8; i++) {
-            this.score[i] = [new Word(0, 0, "", "arame", 50), 0, 0, 0, 0, 0, 0];
+            this.score[i] = [new Word(0, 0, "", "arame", 35), 0, 0, 0, 0, 0, 0];
             this.score[i][0].setFill("#ffffff");
         }
         for (var i = 0, k = 1, j = 0; i < 28; i++, j++) {
@@ -327,14 +327,15 @@ var Note = /** @class */ (function () {
                 j = 0;
                 k++;
             }
-            this.lines[i] = new LineBetweenWords(this.score[k][0], this.score[j][0]);
+            this.lines[i] = new Lines(this.score[k][0], this.score[j][0]);
         }
     }
     Note.prototype.precalc = function () {
+        Note.limit = cnv.h / 2 + 50;
+        this.offset = cnv.w / 32;
         for (var i = 0; i < 8; i++) {
             this.score[i][0].precalc();
         }
-        Note.limit = cnv.h / 2 + 50;
     };
     Note.prototype.draw = function () {
         for (var i = 0; i < 8; i++) {
@@ -344,13 +345,38 @@ var Note = /** @class */ (function () {
                 case 0:
                     position = ((Math.random() * (14 + 14 + 1)) | 0) - 14; //da -14 a 14
                     height = ((Math.random() * (500 + 500 + 1)) | 0) - 500; //da -500 a 500
-                    wait = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
+                    wait = ((Math.random() * (200 - 50 + 1)) | 0) + 50; //da 50 a 200
                     stall = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
-                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
-                    note.visible = false;
-                    note.text = "do";
-                    note.setX(cnv.w / 32 * position);
+                    this.score[i][1] = position;
+                    this.score[i][2] = height;
+                    this.score[i][3] = wait;
+                    this.score[i][4] = stall;
+                    switch ((position + 14 + 6) % 7) {
+                        case 0:
+                            note.text = "do";
+                            break;
+                        case 1:
+                            note.text = "re";
+                            break;
+                        case 2:
+                            note.text = "mi";
+                            break;
+                        case 3:
+                            note.text = "fa";
+                            break;
+                        case 4:
+                            note.text = "sol";
+                            break;
+                        case 5:
+                            note.text = "la";
+                            break;
+                        case 6:
+                            note.text = "si";
+                            break;
+                    }
                     note.setY(-Note.limit);
+                    note.visible = false;
+                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
                     phase++;
                     step = 0;
                     break;
@@ -394,12 +420,9 @@ var Note = /** @class */ (function () {
                     }
                     break;
             }
-            this.score[i][1] = position;
-            this.score[i][2] = height;
-            this.score[i][3] = wait;
-            this.score[i][4] = stall;
             this.score[i][5] = phase;
             this.score[i][6] = step;
+            note.setX(this.offset * position);
             note.draw();
         }
         for (var i = 0; i < 28; i++) {

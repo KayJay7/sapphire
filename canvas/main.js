@@ -21,6 +21,27 @@ var Base = /** @class */ (function () {
         this.filled = false;
         // this.low=[];
     }
+    Object.defineProperty(Base.prototype, "getX", {
+        get: function () {
+            return this.x;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Base.prototype, "getY", {
+        get: function () {
+            return this.y;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Base.prototype, "getLow", {
+        get: function () {
+            return this.low;
+        },
+        enumerable: true,
+        configurable: true
+    });
     Base.prototype.setX = function (x) {
         this.x = x;
         this.low[0] = calx(x - this.w / 2);
@@ -49,27 +70,6 @@ var Base = /** @class */ (function () {
         this.low[2] = calw(w);
         this.low[3] = calh(h);
     };
-    Object.defineProperty(Base.prototype, "getX", {
-        get: function () {
-            return this.x;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Base.prototype, "getY", {
-        get: function () {
-            return this.y;
-        },
-        enumerable: true,
-        configurable: true
-    });
-    Object.defineProperty(Base.prototype, "getLow", {
-        get: function () {
-            return this.low;
-        },
-        enumerable: true,
-        configurable: true
-    });
     Base.prototype.setStroke = function (val1, val2) {
         if (typeof val1 == "string") {
             this.stroke[0] = val1;
@@ -277,18 +277,20 @@ var Drop = /** @class */ (function () {
 }());
 var Roll = /** @class */ (function () {
     function Roll() {
-        this.low = new Array(15);
+        this.low = new Array(31);
     }
     Roll.prototype.precalc = function () {
-        for (var i = 0; i < 15; i++) {
-            this.low[i] = Math.round(cnv.width / 16 * (i + 1)) + 0.5;
+        for (var i = 0; i < 31; i++) {
+            var val = Math.round(cnv.width / 32 * (i + 1)) + 0.5;
+            this.low[i] = val;
+            console.log(val);
         }
     };
     Roll.prototype.draw = function () {
         mna.beginPath();
-        mna.strokeStyle = "#ffffff";
+        mna.strokeStyle = "rgba(255,255,255,0.1)";
         mna.lineWidth = 1;
-        for (var i = 0; i < 15; i++) {
+        for (var i = 0; i < 31; i++) {
             mna.moveTo(this.low[i], 0);
             mna.lineTo(this.low[i], cnv.height);
             mna.stroke();
@@ -297,61 +299,100 @@ var Roll = /** @class */ (function () {
     return Roll;
 }());
 var Lines = /** @class */ (function () {
-    function Lines(w1, w2) {
-        this.w1 = w1;
-        this.w2 = w2;
+    function Lines() {
     }
-    Lines.prototype.draw = function () {
-        if (this.w1.visible && this.w2.visible) {
-            mna.beginPath();
-            mna.strokeStyle = "rgba(255,255,255," + Math.abs(1 - (Math.max(Math.abs(this.w1.getY), Math.abs(this.w2.getY)) / (Note.limit))) + ")";
-            mna.lineWidth = 1;
-            mna.moveTo(this.w1.getLow[0], this.w1.getLow[1]);
-            mna.lineTo(this.w2.getLow[0], this.w2.getLow[1]);
-            mna.stroke();
-        }
-    };
     return Lines;
 }());
++id;
+"re "
+    .
+        Math
+    ==
+        0.5;
+{
+    Math
+        .
+            w1
+        .
+            getY
+        +
+            Math
+        +
+            w2
+                .
+                    getYNote
+        - (limit
+            .
+                private);
+    w1: Word;
+    private;
+    w2: Word;
+    constructor(w1, Word, w2, Word, private, id, number);
+    {
+        this.w1 = w1;
+        this.w2 = w2;
+        if (id == 99) {
+            w1.setFill("#f00");
+            w2.setFill("#0f0");
+        }
+    }
+    draw();
+    void {
+        if: function (w1, visible) {
+            if (visible === void 0) { visible =  && this.w2.visible; }
+            mna.beginPath();
+            mna.strokeStyle = "rgba(255,255,255," + /Math.abs(0.5-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit * 1.5);
+            if (this
+                .
+                    log(this
+                .
+                    abs(max(Math)) / (abs(this
+                .
+                    abs(this
+                * 1.5)))))
+                ;
+        },
+        mna: .lineWidth = 1,
+        mna: .moveTo(this.w1.getLow[0], this.w1.getLow[1]),
+        mna: .lineTo(this.w2.getLow[0], this.w2.getLow[1]),
+        mna: .stroke()
+    };
+}
 var Note = /** @class */ (function () {
     function Note() {
         this.transitionTime = 60;
-        this.score = new Array(8);
-        this.lines = new Array(28);
-        for (var i = 0; i < 8; i++) {
-            this.score[i] = [new Word(0, 0, "", "arame", 35), 0, 0, 0, 0, 0, 0];
+        this.score = new Array(16);
+        this.lines = new Array(120);
+        for (var i = 0; i < 16; i++) {
+            this.score[i] = [new Word(0, 0, "", "arame", 20), 0, 0, 0, 0, 0, 0];
             this.score[i][0].setFill("#ffffff");
         }
-        for (var i = 0, k = 1, j = 0; i < 28; i++, j++) {
+        for (var i = 0, k = 1, j = 0; i < 120; i++, j++) {
             if (j == k) {
                 j = 0;
                 k++;
             }
-            this.lines[i] = new Lines(this.score[k][0], this.score[j][0]);
+            this.lines[i] = new Lines(this.score[k][0], this.score[j][0], i);
         }
     }
     Note.prototype.precalc = function () {
         Note.limit = cnv.h / 2 + 50;
-        this.offset = cnv.w / 32;
-        for (var i = 0; i < 8; i++) {
+        this.offset = cnv.w / 64;
+        for (var i = 0; i < 16; i++) {
             this.score[i][0].precalc();
+            this.score[i][0].setX(this.offset * this.score[i][1]);
         }
     };
     Note.prototype.draw = function () {
-        for (var i = 0; i < 8; i++) {
+        for (var i = 0; i < 16; i++) {
             var note = this.score[i][0];
-            var position = this.score[i][1], height = this.score[i][2], wait = this.score[i][3], stall = this.score[i][4], phase = this.score[i][5], step = this.score[i][6];
-            switch (phase) {
+            switch (this.score[i][5]) {
                 case 0:
-                    position = ((Math.random() * (14 + 14 + 1)) | 0) - 14; //da -14 a 14
-                    height = ((Math.random() * (500 + 500 + 1)) | 0) - 500; //da -500 a 500
-                    wait = ((Math.random() * (200 - 50 + 1)) | 0) + 50; //da 50 a 200
-                    stall = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
-                    this.score[i][1] = position;
-                    this.score[i][2] = height;
-                    this.score[i][3] = wait;
-                    this.score[i][4] = stall;
-                    switch ((position + 14 + 6) % 7) {
+                    this.score[i][1] = ((Math.random() * (30 + 30 + 1)) | 0) - 30; //da -30 a 30
+                    this.score[i][2] = ((Math.random() * (500 + 500 + 1)) | 0) - 500; //da -500 a 500
+                    this.score[i][3] = ((Math.random() * (200 - 50 + 1)) | 0) + 50; //da 50 a 200
+                    this.score[i][4] = ((Math.random() * (150 - 50 + 1)) | 0) + 50; //da 50 a 150
+                    switch ((this.score[i][1] + 30 + 6) % 7) {
                         case 0:
                             note.text = "do";
                             break;
@@ -374,58 +415,55 @@ var Note = /** @class */ (function () {
                             note.text = "si";
                             break;
                     }
+                    note.setX(this.offset * this.score[i][1]);
                     note.setY(-Note.limit);
                     note.visible = false;
-                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
-                    phase++;
-                    step = 0;
+                    this.score[i][5]++;
+                    this.score[i][6] = 0;
                     break;
                 case 1:
-                    if (step < wait) {
-                        step++;
+                    if (this.score[i][6] < this.score[i][3]) {
+                        this.score[i][6]++;
                     }
                     else {
                         note.visible = true;
-                        phase++;
-                        step = 0;
+                        this.score[i][5]++;
+                        this.score[i][6] = 0;
                     }
                     break;
                 case 2:
-                    if (step < this.transitionTime) {
-                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (height + Note.limit + 1)) - Note.limit);
-                        step++;
+                    if (this.score[i][6] < this.transitionTime) {
+                        note.setY((EasingFunctions.easeInOutCubic(this.score[i][6] / this.transitionTime) * (this.score[i][2] + Note.limit + 1)) - Note.limit);
+                        this.score[i][6]++;
                     }
                     else {
-                        phase++;
-                        step = 0;
+                        this.score[i][5]++;
+                        this.score[i][6] = 0;
                     }
                     break;
                 case 3:
-                    if (step < stall) {
-                        step++;
+                    if (this.score[i][6] < this.score[i][4]) {
+                        this.score[i][6]++;
                     }
                     else {
-                        phase++;
-                        step = 0;
+                        this.score[i][5]++;
+                        this.score[i][6] = 0;
                     }
                     break;
                 case 4:
-                    if (step < this.transitionTime) {
-                        note.setY((EasingFunctions.easeInOutCubic(step / this.transitionTime) * (Note.limit - height + 1)) + height);
-                        step++;
+                    if (this.score[i][6] < this.transitionTime) {
+                        note.setY((EasingFunctions.easeInOutCubic(this.score[i][6] / this.transitionTime) * (Note.limit - this.score[i][2] + 1)) + this.score[i][2]);
+                        this.score[i][6]++;
                     }
                     else {
-                        phase = 0;
-                        step = 0;
+                        this.score[i][5] = 0;
+                        this.score[i][6] = 0;
                     }
                     break;
             }
-            this.score[i][5] = phase;
-            this.score[i][6] = step;
-            note.setX(this.offset * position);
             note.draw();
         }
-        for (var i = 0; i < 28; i++) {
+        for (var i = 0; i < 120; i++) {
             this.lines[i].draw();
         }
     };

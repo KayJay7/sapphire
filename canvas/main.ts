@@ -34,7 +34,15 @@ abstract class Base{
         this.filled=false;
         // this.low=[];
     }
-
+    get getX():number{
+        return this.x;
+    }
+    get getY():number{
+        return this.y;
+    }
+    get getLow():number[]{
+        return this.low;
+    }
     public setX(x:number):void{
         this.x=x;
         this.low[0]=calx(x-this.w/2);
@@ -63,18 +71,6 @@ abstract class Base{
         this.low[2]=calw(w);
         this.low[3]=calh(h);
     }
-
-    get getX():number{
-        return this.x;
-    }
-    get getY():number{
-        return this.y;
-    }
-
-    get getLow():number[]{
-        return this.low;
-    }
-
     public setStroke(color:string,width:number):void;
     public setStroke(color:string):void;
     public setStroke(width:number):void;
@@ -300,20 +296,23 @@ class Roll{
     private low:number[];
 
     constructor(){
-        this.low=new Array(15);
+        this.low=new Array(31);
     }
 
     public precalc():void{
-        for(let i:number=0; i<15; i++){
-            this.low[i]=Math.round(cnv.width/16*(i+1))+0.5;
+        for(let i:number=0; i<31; i++){
+            let val=Math.round(cnv.width/32*(i+1))+0.5;
+            this.low[i]=val;
+            console.log(val);
+
         }
     }
 
     public draw():void{
         mna.beginPath();
-        mna.strokeStyle="#ffffff";
+        mna.strokeStyle="rgba(255,255,255,0.1)";
         mna.lineWidth=1;
-        for(let i:number=0; i<15; i++){
+        for(let i:number=0; i<31; i++){
             mna.moveTo(this.low[i],0);
             mna.lineTo(this.low[i],cnv.height);
             mna.stroke();
@@ -321,72 +320,116 @@ class Roll{
     }
 }
 class Lines{
-    private w1:Word;
-    private w2:Word;
-
-    constructor(w1:Word,w2:Word){
+    ")";
+    id
+    99
+    console
+)+
+    id
+    "re "
+.
+    Math
+==
+    0.5
+){
+    Math
+.
+    w1
+.
+    getY
++
+    Math
++
+    w2
+.
+    getYNote
+-(
+    limit
+.
+    private
+    w1:Word;
+.
+    private
+    w2:Word;
+.
+    constructor(w1:Word,w2:Word,private id:number){
         this.w1=w1;
         this.w2=w2;
+        if(id==99){
+            w1.setFill("#f00");
+            w2.setFill("#0f0");
+        }
     }
-
+.
     draw():void{
         if(this.w1.visible&&this.w2.visible){
             mna.beginPath();
-            mna.strokeStyle="rgba(255,255,255,"+Math.abs(1-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit)))+")";
-            mna.lineWidth=1;
-            mna.moveTo(this.w1.getLow[0],this.w1.getLow[1]);
-            mna.lineTo(this.w2.getLow[0],this.w2.getLow[1]);
-            mna.stroke();
-        }
-    }
+            mna.strokeStyle="rgba(255,255,255,"+/Math.abs(0.5-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit*1.5)
+        )
+),
+    if(this
+.
+    log(this
+.
+    abs(
+.
+    max(Math)
+)/(
+    abs(this
+.
+    abs(this
+    *1.5
+))));
+}
+mna.lineWidth=1;
+mna.moveTo(this.w1.getLow[0],this.w1.getLow[1]);
+mna.lineTo(this.w2.getLow[0],this.w2.getLow[1]);
+mna.stroke();
+}
+}
 }
 class Note{
+    public static limit:number;
     private score:[/*note*/Word,/*position*/number,/*height*/number,/*wait*/number,/*stall*/number,/*phase*/number,/*step*/number][];
     private lines:Lines[];
     private transitionTime:number=60;
     private offset:number;
-    public static limit:number;
 
     constructor(){
-        this.score=new Array(8);
-        this.lines=new Array(28);
-        for(let i:number=0; i<8; i++){
-            this.score[i]=[new Word(0,0,"","arame",35),0,0,0,0,0,0];
+        this.score=new Array(16);
+        this.lines=new Array(120);
+        for(let i:number=0; i<16; i++){
+            this.score[i]=[new Word(0,0,"","arame",20),0,0,0,0,0,0];
             this.score[i][0].setFill("#ffffff");
         }
-        for(let i:number=0,k:number=1,j:number=0; i<28; i++, j++){
+        for(let i:number=0,k:number=1,j:number=0; i<120; i++, j++){
             if(j==k){
                 j=0;
                 k++;
             }
-            this.lines[i]=new Lines(this.score[k][0],this.score[j][0]);
+            this.lines[i]=new Lines(this.score[k][0],this.score[j][0],i);
         }
     }
 
     precalc():void{
         Note.limit=cnv.h/2+50;
-        this.offset=cnv.w/32;
-        for(let i:number=0; i<8; i++){
+        this.offset=cnv.w/64;
+        for(let i:number=0; i<16; i++){
             this.score[i][0].precalc();
+            this.score[i][0].setX(this.offset*this.score[i][1]);
         }
     }
 
     draw():void{
-        for(let i:number=0; i<8; i++){
+        for(let i:number=0; i<16; i++){
             let note:Word=this.score[i][0];
-            let position:number=this.score[i][1],height:number=this.score[i][2],wait:number=this.score[i][3],
-                stall:number=this.score[i][4],phase:number=this.score[i][5],step:number=this.score[i][6];
-            switch(phase){
+            switch(this.score[i][5]){
                 case 0:
-                    position=((Math.random()*(14+14+1))|0)-14;//da -14 a 14
-                    height=((Math.random()*(500+500+1))|0)-500;//da -500 a 500
-                    wait=((Math.random()*(200-50+1))|0)+50;//da 50 a 200
-                    stall=((Math.random()*(150-50+1))|0)+50;//da 50 a 150
-                    this.score[i][1]=position;
-                    this.score[i][2]=height;
-                    this.score[i][3]=wait;
-                    this.score[i][4]=stall;
-                    switch((position+14+6)%7){
+                    this.score[i][1]=((Math.random()*(30+30+1))|0)-30;//da -30 a 30
+                    this.score[i][2]=((Math.random()*(500+500+1))|0)-500;//da -500 a 500
+                    this.score[i][3]=((Math.random()*(200-50+1))|0)+50;//da 50 a 200
+                    this.score[i][4]=((Math.random()*(150-50+1))|0)+50;//da 50 a 150
+                    switch((this.score[i][1]+30+6)%7){
                         case 0:
                             note.text="do";
                             break;
@@ -409,58 +452,55 @@ class Note{
                             note.text="si";
                             break;
                     }
+                    note.setX(this.offset*this.score[i][1]);
                     note.setY(-Note.limit);
                     note.visible=false;
-                    // console.log("position="+position+"\r\n"+"height="+height+"\r\n"+"wait="+wait+"\r\n"+"stall="+stall+"\r\n");
-                    phase++;
-                    step=0;
+                    this.score[i][5]++;
+                    this.score[i][6]=0;
                     break;
                 case 1:
-                    if(step<wait){
-                        step++;
+                    if(this.score[i][6]<this.score[i][3]){
+                        this.score[i][6]++;
                     }
                     else{
                         note.visible=true;
-                        phase++;
-                        step=0;
+                        this.score[i][5]++;
+                        this.score[i][6]=0;
                     }
                     break;
                 case 2:
-                    if(step<this.transitionTime){
-                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(height+Note.limit+1))-Note.limit);
-                        step++;
+                    if(this.score[i][6]<this.transitionTime){
+                        note.setY((EasingFunctions.easeInOutCubic(this.score[i][6]/this.transitionTime)*(this.score[i][2]+Note.limit+1))-Note.limit);
+                        this.score[i][6]++;
                     }
                     else{
-                        phase++;
-                        step=0;
+                        this.score[i][5]++;
+                        this.score[i][6]=0;
                     }
                     break;
                 case 3:
-                    if(step<stall){
-                        step++;
+                    if(this.score[i][6]<this.score[i][4]){
+                        this.score[i][6]++;
                     }
                     else{
-                        phase++;
-                        step=0;
+                        this.score[i][5]++;
+                        this.score[i][6]=0;
                     }
                     break;
                 case 4:
-                    if(step<this.transitionTime){
-                        note.setY((EasingFunctions.easeInOutCubic(step/this.transitionTime)*(Note.limit-height+1))+height);
-                        step++;
+                    if(this.score[i][6]<this.transitionTime){
+                        note.setY((EasingFunctions.easeInOutCubic(this.score[i][6]/this.transitionTime)*(Note.limit-this.score[i][2]+1))+this.score[i][2]);
+                        this.score[i][6]++;
                     }
                     else{
-                        phase=0;
-                        step=0;
+                        this.score[i][5]=0;
+                        this.score[i][6]=0;
                     }
                     break;
             }
-            this.score[i][5]=phase;
-            this.score[i][6]=step;
-            note.setX(this.offset*position);
             note.draw();
         }
-        for(let i:number=0; i<28; i++){
+        for(let i:number=0; i<120; i++){
             this.lines[i].draw();
         }
     }

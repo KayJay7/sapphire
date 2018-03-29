@@ -1,0 +1,24 @@
+.base {
+  animation-direction: alternate;
+  animation-duration: 5s;
+  animation-iteration-count: infinite;
+  animation-name: anim;
+  animation-timing-function: ease-in-out;
+  fill: none;
+  stroke: #000fff; }
+
+#blurred {
+  stroke: green;
+  stroke-width: 10px; }
+
+#line {
+  stroke: red;
+  stroke-width: 2px; }
+
+@keyframes anim {
+  0%, 25% {
+    stroke-dashoffset: 1000; }
+  75%, 100% {
+    stroke-dashoffset: -2760; } }
+
+/*# sourceMappingURL=frame.css.map */

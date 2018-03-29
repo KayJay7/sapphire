@@ -232,15 +232,15 @@ var Power = /** @class */ (function (_super) {
         this.low = [calx(this.x), caly(this.y), calw(this.w) / 2 + 400];
     };
     Power.prototype.draw = function () {
-        var k = 1 - (2 * this.step / (180 + this.step));
-        this.step = (this.step + 1) % 181;
-        this.grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2] * k, this.low[0], this.low[1], (this.low[2] * k - 200 > 0) ? this.low[2] * k - 200 : 0);
-        this.grd.addColorStop(0.000, "#1b1464");
-        this.grd.addColorStop(0.500, "#2d75ff"); //"#003ce3"
-        this.grd.addColorStop(1.000, "#1b1464");
+        var k = 1 - (2 * this.step / (181 + this.step)), grd = mna.createRadialGradient(this.low[0], this.low[1], this.low[2] * k, this.low[0], this.low[1], (this.low[2] * k - 200 > 0) ? this.low[2] * k - 200 : 0);
+        grd.addColorStop(0.000, "#1b1464");
+        grd.addColorStop(0.500, "#2d75ff"); //"#003ce3"
+        grd.addColorStop(1.000, "#1b1464");
         mna.beginPath();
-        mna.fillStyle = this.grd;
+        mna.fillStyle = grd;
         mna.fillRect(0, 0, cnv.width, cnv.height);
+        this.step = (this.step + 1) % 181;
+        console.log(k);
     };
     return Power;
 }(Base));
@@ -299,65 +299,22 @@ var Roll = /** @class */ (function () {
     return Roll;
 }());
 var Lines = /** @class */ (function () {
-    function Lines() {
-    }
-    return Lines;
-}());
-+id;
-"re "
-    .
-        Math
-    ==
-        0.5;
-{
-    Math
-        .
-            w1
-        .
-            getY
-        +
-            Math
-        +
-            w2
-                .
-                    getYNote
-        - (limit
-            .
-                private);
-    w1: Word;
-    private;
-    w2: Word;
-    constructor(w1, Word, w2, Word, private, id, number);
-    {
+    function Lines(w1, w2) {
         this.w1 = w1;
         this.w2 = w2;
-        if (id == 99) {
-            w1.setFill("#f00");
-            w2.setFill("#0f0");
-        }
     }
-    draw();
-    void {
-        if: function (w1, visible) {
-            if (visible === void 0) { visible =  && this.w2.visible; }
+    Lines.prototype.draw = function () {
+        if (this.w1.visible && this.w2.visible) {
             mna.beginPath();
-            mna.strokeStyle = "rgba(255,255,255," + /Math.abs(0.5-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit * 1.5);
-            if (this
-                .
-                    log(this
-                .
-                    abs(max(Math)) / (abs(this
-                .
-                    abs(this
-                * 1.5)))))
-                ;
-        },
-        mna: .lineWidth = 1,
-        mna: .moveTo(this.w1.getLow[0], this.w1.getLow[1]),
-        mna: .lineTo(this.w2.getLow[0], this.w2.getLow[1]),
-        mna: .stroke()
+            mna.strokeStyle = "rgba(255,255,255," + Math.abs(0.5 - (Math.max(Math.abs(this.w1.getY), Math.abs(this.w2.getY)) / (Note.limit * 2))) + ")";
+            mna.lineWidth = 1;
+            mna.moveTo(this.w1.getLow[0], this.w1.getLow[1]);
+            mna.lineTo(this.w2.getLow[0], this.w2.getLow[1]);
+            mna.stroke();
+        }
     };
-}
+    return Lines;
+}());
 var Note = /** @class */ (function () {
     function Note() {
         this.transitionTime = 60;
@@ -372,7 +329,7 @@ var Note = /** @class */ (function () {
                 j = 0;
                 k++;
             }
-            this.lines[i] = new Lines(this.score[k][0], this.score[j][0], i);
+            this.lines[i] = new Lines(this.score[k][0], this.score[j][0]);
         }
     }
     Note.prototype.precalc = function () {
@@ -601,7 +558,6 @@ document.onmousedown = function (event) {
 //REFRESH
 function refresh() {
     requestAnimationFrame(refresh);
-    // cnv.dt=Date.now();
     for (var i = 0, max = list.length; i < max; i++) {
         list[i].draw();
     }

@@ -8,23 +8,50 @@
 <body>
 <canvas id="mna">
 </canvas>
-<table id="app">
-    <tr>
-        <td id="title" colspan="2">
-            MUSICALC
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <object type="image/svg+xml" data="resources/loading.svg">error while loading svg</object>
-        </td>
-        <td>
 
-        </td>
-    </tr>
-</table>
-<img src="https://upload.wikimedia.org/wikipedia/commons/6/61/Caspar_David_Friedrich_-_Der_Wanderer_%C3%BCber_dem_Nebelmeer.jpg"
-     alt="sehnsucht"/>
+<div class="app">
+    <!--<object id="frame" type="image/svg+xml" data="resources/frame.svg">error while loading svg</object>-->
+    <div class="table">
+    <table>
+        <thead>
+        <tr>
+            <td id="title" colspan="2">
+                MUSICALC
+            </td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td class="spacer" colspan="2">
+
+            </td>
+        </tr>
+        <tr>
+            <td class="bar">
+                <object type="image/svg+xml" data="resources/loading.svg">error while loading svg</object>
+            </td>
+            <td id="score">
+                1
+            </td>
+        </tr>
+        <tr>
+            <td class="spacer" colspan="2">
+
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" style="height: 5%">
+                <button>SALVA</button>
+                <button>GENERA</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+    <object id="frame"  type="image/svg+xml" data="resources/frame.svg">error while loading svg</object>
+</div>
 <script src="main.js"></script>
 </body>
 </html>
+<!--<img src="https://upload.wikimedia.org/wikipedia/commons/6/61/Caspar_David_Friedrich_-_Der_Wanderer_%C3%BCber_dem_Nebelmeer.jpg"-->
+<!--alt="sehnsucht"/>-->

@@ -233,7 +233,6 @@ class Circle extends Base{
     }
 }
 class Power extends Base{
-    private grd:CanvasGradient;
     private step:number;
 
     constructor(){
@@ -246,15 +245,16 @@ class Power extends Base{
     }
 
     draw():void{
-        let k:number=1-(2*this.step/(180+this.step));
-        this.step=(this.step+1)%181;
-        this.grd=mna.createRadialGradient(this.low[0],this.low[1],this.low[2]*k,this.low[0],this.low[1],(this.low[2]*k-200>0)?this.low[2]*k-200:0);
-        this.grd.addColorStop(0.000,"#1b1464");
-        this.grd.addColorStop(0.500,"#2d75ff");//"#003ce3"
-        this.grd.addColorStop(1.000,"#1b1464");
+        let k:number=1-(2*this.step/(181+this.step)),
+            grd:CanvasGradient=mna.createRadialGradient(this.low[0],this.low[1],this.low[2]*k,this.low[0],this.low[1],(this.low[2]*k-200>0)?this.low[2]*k-200:0);
+        grd.addColorStop(0.000,"#1b1464");
+        grd.addColorStop(0.500,"#2d75ff");//"#003ce3"
+        grd.addColorStop(1.000,"#1b1464");
         mna.beginPath();
-        mna.fillStyle=this.grd;
+        mna.fillStyle=grd;
         mna.fillRect(0,0,cnv.width,cnv.height);
+        this.step=(this.step+1)%181;
+        console.log(k);
     }
 }
 class Drop{
@@ -320,73 +320,24 @@ class Roll{
     }
 }
 class Lines{
-    ")";
-    id
-    99
-    console
-)+
-    id
-    "re "
-.
-    Math
-==
-    0.5
-){
-    Math
-.
-    w1
-.
-    getY
-+
-    Math
-+
-    w2
-.
-    getYNote
--(
-    limit
-.
-    private
-    w1:Word;
-.
-    private
-    w2:Word;
-.
-    constructor(w1:Word,w2:Word,private id:number){
+    private w1:Word;
+    private w2:Word;
+
+    constructor(w1:Word,w2:Word){
         this.w1=w1;
         this.w2=w2;
-        if(id==99){
-            w1.setFill("#f00");
-            w2.setFill("#0f0");
-        }
     }
-.
+
     draw():void{
         if(this.w1.visible&&this.w2.visible){
             mna.beginPath();
-            mna.strokeStyle="rgba(255,255,255,"+/Math.abs(0.5-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit*1.5)
-        )
-),
-    if(this
-.
-    log(this
-.
-    abs(
-.
-    max(Math)
-)/(
-    abs(this
-.
-    abs(this
-    *1.5
-))));
-}
-mna.lineWidth=1;
-mna.moveTo(this.w1.getLow[0],this.w1.getLow[1]);
-mna.lineTo(this.w2.getLow[0],this.w2.getLow[1]);
-mna.stroke();
-}
-}
+            mna.strokeStyle="rgba(255,255,255,"+Math.abs(0.5-(Math.max(Math.abs(this.w1.getY),Math.abs(this.w2.getY))/(Note.limit*2)))+")";
+            mna.lineWidth=1;
+            mna.moveTo(this.w1.getLow[0],this.w1.getLow[1]);
+            mna.lineTo(this.w2.getLow[0],this.w2.getLow[1]);
+            mna.stroke();
+        }
+    }
 }
 class Note{
     public static limit:number;
@@ -407,7 +358,7 @@ class Note{
                 j=0;
                 k++;
             }
-            this.lines[i]=new Lines(this.score[k][0],this.score[j][0],i);
+            this.lines[i]=new Lines(this.score[k][0],this.score[j][0]);
         }
     }
 
@@ -612,7 +563,7 @@ let EasingFunctions={
 let cnv:Tcnv={} as Tcnv;
 let list:any[];
 
-list=[new Power(/*0,0,1,1*/),
+list=[new Power(),
     new Texture("resources/background.png",0,0,16,9),
     new Roll(),
     new Note(),
@@ -648,11 +599,10 @@ window.onresize=calc;
 document.onmousedown=function(event){
     list[list.length-1].startDrop(event.pageX,event.pageY);
 };
+
 //REFRESH
 function refresh(){
     requestAnimationFrame(refresh);
-
-    // cnv.dt=Date.now();
     for(let i:number=0,max:number=list.length; i<max; i++){
         list[i].draw();
     }

@@ -1,0 +1,44 @@
+<?xml-stylesheet type="text/css" href="frame.css"?>
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+    <!--<style><![CDATA[]]></style>-->
+    <defs>
+        <g id="frame">
+            <polyline points="105 1065 105 15 1815 15"/>
+            <polyline points="105 1065 1815 1065 1815 15"/>
+        </g>
+        <filter id="svgBlur">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="5"/>
+        </filter>
+    </defs>
+
+    <use class="base" id="blurred" xlink:href="#frame" filter="url(#svgBlur)"/>
+    <use class="base" id="line" xlink:href="#frame"/>
+</svg>
+
+
+        <!--<?xml-stylesheet type="text/css" href="frame.css"?>
+        <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+            <defs>
+                <g id="lines">
+                    <rect x="105" y="15" width="1701" height="1050"/>
+                </g>
+                <filter id="blur">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="10"/>
+                </filter>
+                <clipPath id="mask">
+                    <rect x="105" y="15" width="1701" height="1050">
+                        <animate attributeName="x"
+                                 values="-105; 315; -105;"
+                                 dur="3s"
+                                 repeatCount="indefinite"/>
+                        <animate attributeName="y"
+                                 values="-15; 45; -15;"
+                                 dur="1s"
+                                 repeatCount="indefinite"/>
+                    </rect>
+                </clipPath>
+            </defs>
+
+            <use class="blur" xlink:href="#lines" clip-path="url(#mask)"/>
+            <use class="line" xlink:href="#lines" clip-path="url(#mask)"/>
+        </svg>-->

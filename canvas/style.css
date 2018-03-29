@@ -14,31 +14,89 @@ canvas {
   position: fixed;
   width: 100vw; }
 
-#app {
+.app {
   background: rgba(0, 30, 40, 0.62);
-  border-collapse: collapse;
   bottom: 0;
+  display: flex;
   height: 62vw;
   left: 0;
   margin: auto;
   max-height: 100vh;
   max-width: 162vh;
+  overflow: hidden;
+  padding: 0;
   position: absolute;
   right: 0;
   top: 0;
   width: 100vw; }
 
+#frame {
+  bottom: -9999px;
+  height: 110%;
+  left: -9999px;
+  margin: auto;
+  position: absolute;
+  right: -9999px;
+  top: -9999px;
+  width: 110%;
+  z-index: 0; }
+
 #title {
   color: #06c;
   font-family: neon, serif;
   font-size: 5rem;
-  height: 10%;
+  padding: 0;
   text-align: center;
   user-select: none;
   width: 100%; }
 
-td,
-th {
-  border: 3px solid red; }
+.table {
+  bottom: -9999px;
+  height: 97%;
+  left: -9999px;
+  margin: auto;
+  position: absolute;
+  right: -9999px;
+  top: -9999px;
+  width: 97%;
+  z-index: 1; }
+
+table {
+  color: white;
+  height: 100%;
+  width: 100%; }
+
+.spacer {
+  border-bottom: 2px solid red;
+  border-top: 2px solid red;
+  height: 10%; }
+
+.bar {
+  border-right: 2px solid goldenrod;
+  height: 75%;
+  width: 10%; }
+
+#score {
+  height: 75%;
+  width: 90%; }
+
+#leads, #pads, #bass {
+  border-bottom: 2px solid goldenrod; }
+
+button {
+  background: none;
+  border-style: none;
+  color: white;
+  float: right;
+  font-family: neon, serif;
+  font-size: 162%;
+  height: 100%;
+  width: 11%; }
+
+thead {
+  height: 35%; }
+
+tbody {
+  height: 65%; }
 
 /*# sourceMappingURL=style.css.map */

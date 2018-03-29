@@ -1,0 +1,32 @@
+$base-color: #000fff;
+
+.base {
+  animation-direction: alternate;
+  animation-duration: 5s;
+  animation-iteration-count: infinite; //2760
+  animation-name: anim;
+  animation-timing-function: ease-in-out;
+  fill: none;
+  stroke: $base-color;
+  //stroke-dasharray: 1000 2760;
+}
+
+#blurred {
+  stroke: green;
+  stroke-width: 10px;
+}
+
+#line {
+  stroke: red;
+  stroke-width: 2px;
+}
+
+@keyframes anim {
+  0%, 25% {
+    stroke-dashoffset: 1000;
+  }
+
+  75%, 100% {
+    stroke-dashoffset: -2760;
+  }
+}
